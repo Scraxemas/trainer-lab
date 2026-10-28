@@ -1,0 +1,44 @@
+name: Import Poltergeist Gen 4 creator-permitted artwork
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  import-artwork:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Install conversion utilities
+        run: |
+          python -m pip install --disable-pip-version-check "gdown>=5,<6" "Pillow>=10,<13"
+          sudo apt-get update -qq
+          sudo apt-get install -y p7zip-full
+      - name: Download from original artist link
+        run: |
+          mkdir -p /tmp/creator-pack
+          gdown --id 1ph4jZ9JdFT5Z-vcQxxaIwAAe8XjLcqkX -O /tmp/creator-pack/pokemon-png.rar
+          test "$(stat -c '%s' /tmp/creator-pack/pokemon-png.rar)" -gt 10000
+          file /tmp/creator-pack/pokemon-png.rar
+          7z t /tmp/creator-pack/pokemon-png.rar
+      - name: Extract and validate PNG files
+        run: |
+          mkdir -p /tmp/creator-pack/extracted
+          7z x -y /tmp/creator-pack/pokemon-png.rar "-o/tmp/creator-pack/extracted" >/dev/null
+          python scripts/prep_creator_assets.py /tmp/creator-pack/extracted assets/poltergeist
+      - name: Commit curated source artwork + manifest
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/poltergeist
+          if git diff --cached --quiet; then
+            echo "No artwork changes found."
+          else
+            git commit -m "Import artist-shared Gen 4 modular character parts"
+            git push
+          fi
