@@ -60,6 +60,37 @@
 .pack-library .button-soft{color:#394b65;background:#d9e4ef}
 @media(max-width:760px){.pack-library{width:calc(100% - 28px);margin:4px auto 18px}}
 
+
+/* Real artwork integrated into primary appearance/item picker. */
+.real-picker{border:1px solid #d7dcef;background:linear-gradient(180deg,#f5f4ff,#fff);border-radius:13px;padding:14px 12px 13px;margin-bottom:16px}
+.real-picker-head,.real-picker-bottom{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.real-picker-head{font-size:10px;color:#5c48a2;letter-spacing:.65px;font-weight:900}
+.real-picker-count{font-weight:700;white-space:nowrap;color:#6b7585;letter-spacing:0}
+.real-picker-hint{font-size:11px;color:#65718a;line-height:1.55;margin:9px 0 13px}
+.real-picker-settings{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;margin-bottom:10px}
+.real-picker-settings label{font-size:9px;font-weight:900;letter-spacing:.3px;color:#64708a;min-width:0}
+.real-picker-settings select{width:100%;min-width:0;display:block;margin-top:5px;background:white;border:1px solid #d9dce7;color:#384455;border-radius:8px;padding:8px 6px;font-size:11px}
+.real-picker-settings label:only-child{grid-column:1/-1}
+.real-part-tabs{display:flex;gap:5px;flex-wrap:wrap;margin:8px 0 11px}
+.real-part-tab{border:1px solid #d7dbec;background:white;padding:6px 9px;border-radius:8px;font-size:10px;font-weight:800;color:#53637a}
+.real-part-tab.active{background:#ebe6ff;border-color:#7254cc;color:#573caf}
+.real-item-search{display:block;width:100%;border:1px solid #d4dbea;background:#fff;border-radius:8px;padding:9px 11px;font-size:11px;color:#34455d;margin-bottom:7px}
+.real-picker-counter{color:#798399;font-size:10px;margin:3px 0 8px}
+.real-item-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+.real-item{min-width:0;display:flex;align-items:center;flex-direction:column;gap:4px;border:1px solid #dce3ec;background:#fff;padding:6px 4px;border-radius:9px;min-height:91px;color:#526175;overflow:hidden}
+.real-item:hover{border-color:#8b75d0;background:#f7f5ff}
+.real-item.picked{border:2px solid #7353c7;background:#f1edff;color:#573caf;padding:5px 3px}
+.real-sprite-thumb{display:block;width:56px;height:62px;background-position:left top;background-repeat:no-repeat;background-color:#eef0f5;border-radius:5px;image-rendering:pixelated}
+.real-item-name{display:block;overflow:hidden;max-width:100%;text-overflow:ellipsis;white-space:nowrap;font-size:9px;line-height:1.2;font-weight:800}
+.real-more{width:100%;margin-top:11px;padding:7px 9px}
+.real-picker-bottom{margin-top:11px;padding-top:9px;border-top:1px solid #e4e0f4;font-size:10px;color:#58667f}
+.real-picker-bottom button{font-size:10px;padding:5px;background:transparent;border:0;text-decoration:underline;color:#6847bb}
+.real-picker-bottom button:disabled{opacity:.4;cursor:default}
+.starter-details{border-top:1px solid #e4e9ee;padding-top:10px;margin-top:5px}
+.starter-details>summary{font-size:11px;font-weight:800;cursor:pointer;color:#69748a;padding:7px 2px}
+.starter-options-wrap{padding-top:13px}
+@media (max-width:420px){.real-item-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.real-picker-settings{grid-template-columns:1fr}}
+
 </style>
 
 </head>
@@ -254,8 +285,165 @@ function randomize(){
 }
 function setField(key,value){state[key]=value;activePreset=-1;refresh();}
 function switchTab(tab){activeTab=tab;document.querySelectorAll('.category-tab').forEach(b=>{const active=b.dataset.tab===tab;b.classList.toggle('active',active);b.setAttribute('aria-selected',String(active));});renderControls();}
+// The primary item picker now uses the creator-shared, pose-aligned art library.
+// The legacy generator remains accessible in a collapsed advanced section.
+const CREATOR_PARTS={
+ appearance:[['base','Body & skin']],
+ hair:[['hair','Hairstyles']],
+ clothes:[['tops','Tops'],['bottoms','Bottoms'],['outfits','Full outfits'],['shoes','Shoes']],
+ accessories:[['hats','Hats & headwear'],['bags','Bags']]
+};
+const CREATOR_POSES=[
+ ['overworld walk','Walking'],['overworld run','Running'],['overworld bike','Cycling'],
+ ['trainer front male','Trainer front · male'],['trainer front female','Trainer front · female'],
+ ['trainer back male','Trainer back · male'],['trainer back female','Trainer back · female']
+];
+let creatorPose='overworld walk',creatorGender='f',creatorPart='base';
+let creatorQuery='',creatorLimit=36,creatorBusy=false,creatorSelection={};
+const CREATOR_SAVE_KEY='trainer-lab-creator-parts-v2';
+function creatorMatchesGender(asset){
+ if(!creatorPose.startsWith('overworld'))return true;
+ const path=asset.path.toLowerCase().replace(/\\/g,'/');
+ if(/\/hair\/boy(?:\s|\/)/.test(path))return creatorGender==='m';
+ if(/\/hair\/girl(?:\s|\/)/.test(path))return creatorGender==='f';
+ const part=path.split('/').slice(2,5).join(' ');
+ const sex=part.match(/\b(?:base|top|bottom)\s+([fm])\b/);
+ return !sex||sex[1]===creatorGender;
+}
+function creatorChoices(){
+ const available=CREATOR_PARTS[activeTab];
+ const choices=available.filter(([part])=>packAssets.some(a=>a.category===part&&assetPose(a)===creatorPose));
+ if(choices.length && !choices.some(([part])=>part===creatorPart))creatorPart=choices[0][0];
+ return choices;
+}
+function creatorAvailable(){
+ return packAssets.filter(a=>assetPose(a)===creatorPose&&a.category===creatorPart&&creatorMatchesGender(a)&&
+ (!creatorQuery||(a.name+' '+a.path).toLowerCase().includes(creatorQuery.toLowerCase().trim())));
+}
+function creatorPersist(){
+ try{localStorage.setItem(CREATOR_SAVE_KEY,JSON.stringify({pose:creatorPose,gender:creatorGender,
+ selected:appliedPackSprites.map(s=>({path:s.asset.path,mode:s.mode,layout:s.layout,offset:s.offset,category:s.asset.category}))}));}catch{}
+}
+function creatorClearSelection(keepPose=true){
+ appliedPackSprites=[];creatorSelection={};
+ if(!keepPose){creatorPose='overworld walk';creatorGender='f';}
+ creatorPersist();renderAppliedPackStack();renderPreview();
+}
+async function creatorUse(asset){
+ if(creatorBusy)return;
+ creatorBusy=true;
+ try{
+  // Automatically start a trainer with a compatible base if a hair/clothing item is picked first.
+  if(asset.category!=='base'&&!appliedPackSprites.some(s=>s.mode==='replace')){
+   const bases=packAssets.filter(a=>a.category==='base'&&assetPose(a)===creatorPose&&creatorMatchesGender(a));
+   const base=bases.find(a=>/medium/i.test(a.name))||bases.find(a=>/light/i.test(a.name))||bases[0];
+   if(base){await choosePackSprite(base);$('pack-apply').value='replace';applyPackSprite();creatorSelection.base=base.id;}
+  }
+  await choosePackSprite(asset);
+  $('pack-apply').value=asset.category==='base'?'replace':'overlay';
+  $('pack-layout').value='auto';$('pack-frame-offset').value='0';
+  applyPackSprite();
+  creatorSelection[asset.category]=asset.id;
+  if(asset.category==='base')creatorSelection={base:asset.id};
+  creatorPersist();
+ }catch(error){toast('Could not apply this sprite: '+error.message);}
+ finally{creatorBusy=false;renderControls();}
+}
+function creatorSelectionThumbnail(asset){
+ const bg=document.createElement('span');bg.className='real-sprite-thumb';
+ // Display first actual sprite cell rather than a microscopic entire 4x4 sprite sheet.
+ const cols=asset.width===875?5:4;
+ const rows=asset.width===875?1:4;
+ bg.style.backgroundImage='url('+JSON.stringify(asset.url||'')+')';
+ bg.style.backgroundSize=(cols*100)+'% '+(rows*100)+'%';
+ bg.style.backgroundPosition='left top';
+ return bg;
+}
+function renderNativePicker(container){
+ const block=document.createElement('section');block.className='real-picker';
+ const head=document.createElement('div');head.className='real-picker-head';
+ const label=document.createElement('span');label.textContent='GEN IV · REAL SPRITE PARTS';
+ const count=document.createElement('span');count.className='real-picker-count';
+ count.textContent=packAssets.length?packAssets.length.toLocaleString()+' built in':'Loading artwork…';
+ head.append(label,count);block.append(head);
+ const lead=document.createElement('p');lead.className='real-picker-hint';lead.textContent='Choose an item below to put it on your trainer immediately. Matching walking, running and portrait parts stay together.';block.append(lead);
+ const pick=document.createElement('div');pick.className='real-picker-settings';
+ const poseLabel=document.createElement('label');poseLabel.textContent='SPRITE TYPE';
+ const poseSelect=document.createElement('select');poseSelect.setAttribute('aria-label','Sprite animation type');
+ for(const [value,name] of CREATOR_POSES){const opt=document.createElement('option');opt.value=value;opt.textContent=name;poseSelect.append(opt);}
+ poseSelect.value=creatorPose;
+ poseSelect.addEventListener('change',()=>{creatorPose=poseSelect.value;creatorPart=CREATOR_PARTS[activeTab][0][0];creatorQuery='';creatorLimit=36;
+  creatorClearSelection();renderControls();});
+ poseLabel.append(poseSelect);pick.append(poseLabel);
+ if(creatorPose.startsWith('overworld')){
+  const genderLabel=document.createElement('label');genderLabel.textContent='BODY TYPE';
+  const genderSelect=document.createElement('select');genderSelect.setAttribute('aria-label','Character body template');
+  for(const [v,name] of [['f','Female'],['m','Male']]){const o=document.createElement('option');o.value=v;o.textContent=name;genderSelect.append(o);}
+  genderSelect.value=creatorGender;genderSelect.addEventListener('change',()=>{creatorGender=genderSelect.value;
+   creatorQuery='';creatorLimit=36;creatorClearSelection();renderControls();});
+  genderLabel.append(genderSelect);pick.append(genderLabel);
+ }
+ block.append(pick);
+ const categories=creatorChoices();
+ if(categories.length>1){const tabs=document.createElement('div');tabs.className='real-part-tabs';
+  for(const [value,label] of categories){const button=document.createElement('button');button.type='button';button.textContent=label;
+   button.className='real-part-tab'+(value===creatorPart?' active':'');button.setAttribute('aria-pressed',String(value===creatorPart));
+   button.addEventListener('click',()=>{creatorPart=value;creatorQuery='';creatorLimit=36;renderControls();});tabs.append(button);}
+  block.append(tabs);}
+ if(!packAssets.length){const status=document.createElement('p');status.className='real-picker-hint';status.textContent='Loading Coffee Cup / Poltergeist character parts from the built-in library…';block.append(status);container.append(block);return;}
+ if(!categories.length){const msg=document.createElement('p');msg.className='real-picker-hint';msg.textContent='No matching part types for this pose. Choose another animation type.';block.append(msg);container.append(block);return;}
+ const search=document.createElement('input');search.type='search';search.className='real-item-search';
+ search.placeholder='Search '+creatorPart+'…';search.setAttribute('aria-label','Search real sprite items');search.value=creatorQuery;
+ const grid=document.createElement('div');grid.className='real-item-grid';
+ const counter=document.createElement('p');counter.className='real-picker-counter';
+ const more=document.createElement('button');more.type='button';more.className='button button-soft real-more';more.textContent='Show more items';
+ function populate(){
+  const choices=creatorAvailable();grid.replaceChildren();
+  counter.textContent=choices.length+' '+creatorPart+' available'+(choices.length>creatorLimit?' · showing first '+creatorLimit:'');
+  for(const asset of choices.slice(0,creatorLimit)){
+   const button=document.createElement('button');button.type='button';button.className='real-item'+(creatorSelection[asset.category]===asset.id?' picked':'');
+   button.title=asset.name+' — '+asset.path;button.setAttribute('aria-pressed',String(creatorSelection[asset.category]===asset.id));
+   button.append(creatorSelectionThumbnail(asset));
+   const txt=document.createElement('span');txt.className='real-item-name';txt.textContent=asset.name;button.append(txt);
+   button.addEventListener('click',()=>creatorUse(asset));grid.append(button);
+  }
+  if(!choices.length){const empty=document.createElement('div');empty.className='real-picker-hint';empty.textContent='No matching items. Try another search or body type.';grid.append(empty);}
+  more.hidden=choices.length<=creatorLimit;
+ }
+ search.addEventListener('input',()=>{creatorQuery=search.value;creatorLimit=36;populate();});
+ more.addEventListener('click',()=>{creatorLimit+=36;populate();});
+ block.append(search,counter,grid,more);
+ const status=document.createElement('div');status.className='real-picker-bottom';
+ const selected=document.createElement('span');selected.textContent=appliedPackSprites.length+' real item layer(s) applied';
+ const clear=document.createElement('button');clear.type='button';clear.textContent='Remove all items';clear.disabled=!appliedPackSprites.length;
+ clear.addEventListener('click',()=>{creatorClearSelection();renderControls();});status.append(selected,clear);block.append(status);
+ populate();container.append(block);
+}
+async function restoreNativeSelection(){
+ try{
+  const saved=JSON.parse(localStorage.getItem(CREATOR_SAVE_KEY)||'null');
+  if(!saved||!Array.isArray(saved.selected))return;
+  if(CREATOR_POSES.some(p=>p[0]===saved.pose))creatorPose=saved.pose;
+  if(['m','f'].includes(saved.gender))creatorGender=saved.gender;
+  for(const savedPart of saved.selected.slice(0,8)){
+   if(!savedPart||typeof savedPart.path!=='string')continue;
+   const asset=packAssets.find(a=>a.path===savedPart.path&&assetPose(a)===creatorPose);
+   if(!asset)continue;
+   await choosePackSprite(asset);
+   $('pack-apply').value=savedPart.mode==='replace'?'replace':'overlay';
+   $('pack-layout').value='auto';$('pack-frame-offset').value='0';applyPackSprite();
+   creatorSelection[asset.category]=asset.id;
+  }
+  renderControls();
+ }catch(error){console.warn('Could not restore saved sprite layers',error);}
+}
+
 function renderControls(){
  const content=$('control-content');content.replaceChildren();
+ renderNativePicker(content);
+ const advanced=document.createElement('details');advanced.className='starter-details';
+ const summary=document.createElement('summary');summary.textContent='Original starter character options';advanced.append(summary);
+ const classic=document.createElement('div');classic.className='starter-options-wrap';advanced.append(classic);content.append(advanced);
  for(const group of LABELS[activeTab]){
   const box=document.createElement('section');box.className='group';
   const heading=document.createElement('div');heading.className='group-heading';const title=document.createElement('span');title.textContent=group.label;heading.append(title);
@@ -275,7 +463,7 @@ function renderControls(){
     b.addEventListener('click',()=>setField(group.key,color));pal.append(b);
    }box.append(pal);
   }
-  content.append(box);
+  classic.append(box);
  }
 }
 function rgb(hex){return [parseInt(hex.slice(1,3),16),parseInt(hex.slice(3,5),16),parseInt(hex.slice(5,7),16)];}
@@ -450,6 +638,7 @@ function renderPreview(){
  $('zoom').value=z;$('zoom-label').textContent=z+'×';
  $('preview-stage').className='preview-stage bg-'+state.background;
  $('style-caption').textContent=state.style==='gen4'?'GEN IV / PIXEL STYLE':'GEN V / PIXEL STYLE';
+ document.querySelector('.stage-bottomline span:last-child').textContent=appliedPackSprites.length?'ART BY COFFEE CUP / POLTERGEIST':'100% ORIGINAL STARTER ART';
  document.querySelectorAll('[data-dir]').forEach(b=>{b.classList.toggle('selected',b.dataset.dir===state.direction);b.setAttribute('aria-pressed',String(b.dataset.dir===state.direction));});
  document.querySelectorAll('[data-style]').forEach(b=>{b.classList.toggle('selected',b.dataset.style===state.style);b.setAttribute('aria-pressed',String(b.dataset.style===state.style));});
  $('animation-toggle').classList.toggle('active',state.animate);
@@ -664,12 +853,12 @@ function applyPackSprite(){
   if(!['other','overworld'].includes(chosenPackAsset.category))appliedPackSprites=appliedPackSprites.filter(s=>s.asset.category!==chosenPackAsset.category);
   appliedPackSprites.push(selected);
  }
- renderPreview();renderAppliedPackStack();toast('Applied '+chosenPackAsset.name+' to trainer preview');
+ renderPreview();renderAppliedPackStack();creatorPersist();toast('Applied '+chosenPackAsset.name+' to trainer preview');
 }
 function clearPackAssets(){
  for(const a of packAssets)if(a.image && a.image.close)a.image.close();
  packAssets.length=0;chosenPackAsset=null;appliedPackSprites=[];
- $('pack-detail').hidden=true;packMessage('Sprite Vault cleared. Import ZIPs or extracted PNG folders to use them again.');renderPackGallery();renderPreview();
+ $('pack-detail').hidden=true;packMessage('Sprite Vault cleared. Import ZIPs or extracted PNG folders to use them again.');renderPackGallery();renderPreview();renderControls();
 }
 function renderAppliedPackStack(){
  const el=$('pack-applied-stack');if(!el)return;
@@ -693,7 +882,7 @@ async function loadBuiltInAssets(){
       width:item.width,height:item.height});n++;
   }
   packMessage('Loaded '+n+' ready-to-use Gen IV sprite parts by Coffee Cup / Poltergeist. Choose the same pose family for each piece, then select a base below to start customizing.');
-  renderPackGallery();
+  renderPackGallery();renderControls();await restoreNativeSelection();
  }catch(e){packMessage('Bundled sprites could not be loaded: '+e.message,true);}
 }
 function bindPackVault(){
@@ -715,7 +904,7 @@ function bind(){
  document.querySelectorAll('[data-dir]').forEach(b=>b.addEventListener('click',()=>{state.direction=b.dataset.dir;frame=0;renderPreview();persist();}));
  $('zoom').addEventListener('input',e=>{state.zoom=+e.target.value;renderPreview();persist();});
  $('animation-toggle').addEventListener('click',()=>{state.animate=!state.animate;frame=0;renderPreview();persist();});
- $('reset-character').addEventListener('click',()=>{state={...BASE};activePreset=-1;frame=0;refresh();toast('Back to the original starter character');});
+ $('reset-character').addEventListener('click',()=>{state={...BASE};activePreset=-1;frame=0;creatorClearSelection(false);refresh();toast('Back to the original starter character');});
  $('randomize-header').addEventListener('click',randomize);
  $('export-header').addEventListener('click',exportSheet);$('export-sheet').addEventListener('click',exportSheet);$('export-single').addEventListener('click',exportPose);
  $('save-json').addEventListener('click',downloadJSON);$('load-json-button').addEventListener('click',()=>$('load-json').click());
