@@ -325,9 +325,9 @@ function drawSprite(g,v,direction='front',f=0,layers=[],sheetCol=f){
  }
  g.restore();
  // External asset selected from the local Sprite Vault.
- if(appliedPackSprite){
-  if(appliedPackSprite.mode==='replace')g.clearRect(0,0,32,48);
-  paintPackFrame(g,appliedPackSprite.asset,direction,sheetCol,appliedPackSprite.layout,appliedPackSprite.offset);
+ for(const sprite of appliedPackSprites){
+  if(sprite.mode==='replace')g.clearRect(0,0,32,48);
+  paintPackFrame(g,sprite.asset,direction,sheetCol,sprite.layout,sprite.offset);
  }
  for(const layer of layers){
   if(!layer.enabled)continue;
@@ -381,7 +381,7 @@ async function importLayers(files){let accepted=0,rejected=0;
 
 // Local pack asset library. Archive bytes never leave this browser tab.
 const packAssets=[];
-let chosenPackAsset=null,appliedPackSprite=null,displayedPackCount=120,packBusy=false;
+let chosenPackAsset=null,appliedPackSprites=[],displayedPackCount=120,packBusy=false;
 const MAX_ZIP=90*1024*1024,MAX_ENTRY=12*1024*1024,MAX_TOTAL=180*1024*1024,MAX_ASSETS=5000;
 function packMessage(message,warning=false){const el=$('pack-status');el.textContent=message;el.classList.toggle('warning',warning);}
 function classifyPackPath(path){
@@ -498,17 +498,25 @@ function renderPackGallery(){
  sourceSel.value=[...sourceSel.options].some(o=>o.value===selectedSource)?selectedSource:'all';
  const found=filteredPackAssets(),list=$('pack-gallery');list.replaceChildren();
  $('pack-count').textContent=found.length+' of '+packAssets.length+' sprites';
- if(!found.length){const p=document.createElement('p');p.className='pack-empty';p.textContent=packAssets.length?'No sprites match your filters.':'Imported PNGs will show up here. The bundled starter art remains usable without any packs.';list.append(p);}
+ if(!found.length){const p=document.createElement('p');p.className='pack-empty';p.textContent=packAssets.length?'No sprites match your filters.':'Imported or built-in sprite artwork will appear here. The original starter character is available above.';list.append(p);}
  for(const a of found.slice(0,displayedPackCount)){
   const b=document.createElement('button');b.type='button';b.className='pack-asset'+(a===chosenPackAsset?' selected':'');b.title=a.path;
-  const thumb=document.createElement('span');thumb.className='pack-thumb';const c=document.createElement('canvas');c.width=32;c.height=48;showPackThumb(c,a);thumb.append(c);
+  const thumb=document.createElement('span');thumb.className='pack-thumb';
+  if(a.url && !a.image){const im=document.createElement('img');im.src=a.url;im.loading='lazy';im.alt='';im.style.cssText='height:96px;width:96px;object-fit:contain;image-rendering:pixelated';thumb.append(im);}
+  else {const c=document.createElement('canvas');c.width=32;c.height=48;showPackThumb(c,a);thumb.append(c);}
   const name=document.createElement('span');name.className='pack-asset-name';name.textContent=a.name;
   const meta=document.createElement('span');meta.className='pack-asset-meta';meta.textContent=a.category+' · '+a.source;
-  b.append(thumb,name,meta);b.addEventListener('click',()=>choosePackSprite(a));list.append(b);
+  b.append(thumb,name,meta);b.addEventListener('click',()=>{choosePackSprite(a).catch(e=>packMessage('Sprite failed to load: '+e.message,true));});list.append(b);
  }
  $('pack-show-more').hidden=found.length<=displayedPackCount;
 }
-function choosePackSprite(asset){
+async function choosePackSprite(asset){
+ if(asset.url&&!asset.image){
+  packMessage('Loading '+asset.name+' from the built-in gallery…');
+  const res=await fetch(asset.url);
+  if(!res.ok)throw Error('HTTP '+res.status);
+  asset.image=await createImageBitmap(await res.blob());
+ }
  chosenPackAsset=asset;
  $('pack-detail').hidden=false;
  $('pack-selected-name').textContent=asset.path;
@@ -522,13 +530,44 @@ function choosePackSprite(asset){
 }
 function applyPackSprite(){
  if(!chosenPackAsset){packMessage('Select a sprite from the gallery first.',true);return;}
- appliedPackSprite={asset:chosenPackAsset,mode:$('pack-apply').value,layout:$('pack-layout').value,offset:Math.max(0,parseInt($('pack-frame-offset').value)||0)};
- renderPreview();toast('Applied '+chosenPackAsset.name+' to trainer preview');
+ const mode=$('pack-apply').value;
+ const selected={asset:chosenPackAsset,mode,layout:$('pack-layout').value,offset:Math.max(0,parseInt($('pack-frame-offset').value)||0)};
+ if(mode==='replace')appliedPackSprites=[selected];
+ else {
+  if(!['accessories','other'].includes(chosenPackAsset.category))appliedPackSprites=appliedPackSprites.filter(s=>s.asset.category!==chosenPackAsset.category);
+  appliedPackSprites.push(selected);
+ }
+ renderPreview();renderAppliedPackStack();toast('Applied '+chosenPackAsset.name+' to trainer preview');
 }
 function clearPackAssets(){
- for(const a of packAssets)a.image.close();
- packAssets.length=0;chosenPackAsset=null;appliedPackSprite=null;
+ for(const a of packAssets)if(a.image && a.image.close)a.image.close();
+ packAssets.length=0;chosenPackAsset=null;appliedPackSprites=[];
  $('pack-detail').hidden=true;packMessage('Sprite Vault cleared. Import ZIPs or extracted PNG folders to use them again.');renderPackGallery();renderPreview();
+}
+function renderAppliedPackStack(){
+ const el=$('pack-applied-stack');if(!el)return;
+ if(!appliedPackSprites.length){el.textContent='0 sprite layers applied. Select a base first, then add clothes, hair and accessories.';return;}
+ const list=appliedPackSprites.map((s,i)=>(i+1)+'. '+s.asset.name+' ['+s.mode+']');
+ el.textContent=appliedPackSprites.length+' active layer(s): '+list.join(' · ');
+}
+async function loadBuiltInAssets(){
+ let res;
+ try{res=await fetch('assets/poltergeist/manifest.json',{cache:'no-store'});if(!res.ok)throw Error('No published art pack');}
+ catch{packMessage('Starter art is ready. Additional creator artwork has not been published yet; you can still import ZIPs or folders.',true);return;}
+ try{
+  const manifest=await res.json();
+  if(!manifest||manifest.source_id!=='poltergeist-gen4'||!Array.isArray(manifest.assets))throw Error('Invalid built-in asset manifest');
+  let n=0;
+  for(const item of manifest.assets){
+   if(n>=MAX_ASSETS||!item.path||!/^assets\/poltergeist\/[a-z0-9/_-]+\.png$/.test(item.path))continue;
+   const category=classifyPackPath(item.source_path||item.path);
+   packAssets.push({id:packAssets.length+1,name:item.name,path:item.source_path||item.path,
+      source:'Poltergeist Gen IV (built in)',category,image:null,url:item.path,
+      width:item.width,height:item.height});n++;
+  }
+  packMessage('Loaded '+n+' ready-to-use Gen IV sprite parts by Coffee Cup / Poltergeist. Select any sprite below to start customizing.');
+  renderPackGallery();
+ }catch(e){packMessage('Bundled sprites could not be loaded: '+e.message,true);}
 }
 function bindPackVault(){
  $('import-pack-zip').addEventListener('change',async e=>{await loadPackFiles([...e.target.files],false);e.target.value='';});
@@ -539,7 +578,7 @@ function bindPackVault(){
  $('pack-show-more').addEventListener('click',()=>{displayedPackCount+=120;renderPackGallery();});
  $('pack-layout').addEventListener('change',()=>{if(chosenPackAsset)showPackThumb($('pack-selected-canvas'),chosenPackAsset,$('pack-layout').value);});
  $('pack-apply-selected').addEventListener('click',applyPackSprite);
- $('pack-remove-selected').addEventListener('click',()=>{appliedPackSprite=null;renderPreview();toast('Original builder art restored');});
+ $('pack-remove-selected').addEventListener('click',()=>{appliedPackSprites=appliedPackSprites.filter(s=>s.asset!==chosenPackAsset);renderPreview();renderAppliedPackStack();toast('Selected sprite layer removed');});
  $('clear-pack-library').addEventListener('click',clearPackAssets);
 }
 function bind(){
@@ -557,7 +596,7 @@ function bind(){
  document.addEventListener('keydown',e=>{if(e.target.matches('input,textarea,button')||e.altKey||e.ctrlKey||e.metaKey)return;const dirs={ArrowDown:'front',ArrowLeft:'left',ArrowRight:'right',ArrowUp:'back'};if(dirs[e.key]){e.preventDefault();state.direction=dirs[e.key];renderPreview();}else if(e.key.toLowerCase()==='r'){randomize();}});
  setInterval(()=>{if(!state.animate||document.hidden)return;frame=(frame+1)%4;renderPreview();},240);
 }
-bind();bindPackVault();refresh();renderLayers();renderPackGallery();
+bind();bindPackVault();refresh();renderLayers();renderPackGallery();loadBuiltInAssets();
 })();
 
 </script>
@@ -567,9 +606,9 @@ bind();bindPackVault();refresh();renderLayers();renderPackGallery();
     <header class="topbar">
       <div class="brand">
         <div class="brandmark" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
-        <div><div class="brandname">TRAINER<span>LAB</span><span class="brand-spark">✳</span></div><div class="brand-sub">PIXEL CHARACTER STUDIO</div></div>
+        <div><div class="brandname">TRAINER<span>LAB</span><span class="brand-spark">✳</span></div><div class="brand-sub">PIXEL CHARACTER STUDIO · 1,709 IMPORTED ASSETS</div></div>
       </div>
-      <div class="header-center"><span class="status-dot"></span> CREATE MODE <span class="header-sep">/</span> GEN IV–V INSPIRED</div>
+      <div class="header-center"><span class="status-dot"></span> <a href="#sprite-vault" style="color:inherit;text-decoration:underline">OPEN SPRITE VAULT ↓</a> <span class="header-sep">/</span> CREATE MODE <span class="header-sep">/</span> GEN IV–V INSPIRED</div>
       <div class="header-actions">
         <button id="randomize-header" class="button button-ghost"><span class="button-symbol">✦</span> Randomize</button>
         <button id="save-json" class="button button-ghost"><span class="button-symbol">↧</span> Save Build</button>
@@ -621,9 +660,9 @@ bind();bindPackVault();refresh();renderLayers();renderPackGallery();
         <input id="load-json" type="file" accept=".json,application/json" hidden>
       </aside>
     </main>
-    <section class="pack-library panel" aria-label="Imported sprite pack library">
+    <section id="sprite-vault" class="pack-library panel" aria-label="Imported sprite pack library">
       <div class="pack-library-head">
-        <div><div class="overline">04 / THE SPRITE VAULT</div><h2>Import your sprite packs<span class="asterisk">✳</span></h2><p>Browse local ZIP archives or extracted PNG folders. Choose a full sprite or a transparent layer to apply to your trainer.</p></div>
+        <div><div class="overline">04 / THE SPRITE VAULT</div><h2>Ready-to-use sprite library<span class="asterisk">✳</span></h2><p>Creator-shared Gen IV character parts load from the built-in collection when available. Mix and stack compatible layers. Add your own ZIP or folder too.</p></div>
         <div class="pack-actions">
           <label class="button button-primary" for="import-pack-zip">↧ Import ZIP pack</label>
           <label class="button button-outline" for="import-pack-folder">▣ Import extracted folder</label>
@@ -638,15 +677,15 @@ bind();bindPackVault();refresh();renderLayers();renderPackGallery();
         <a target="_blank" rel="noopener noreferrer" href="https://eeveeexpo.com/resources/609/">Ultimate Gen IV ↗</a>
         <a target="_blank" rel="noopener noreferrer" href="https://eeveeexpo.com/resources/619/">Ultimate Gen V ↗</a>
       </div>
-      <div id="pack-status" role="status" aria-live="polite" class="pack-status">No pack imported. Download a ZIP, or extract a RAR/7z to a folder, then import above.</div>
+      <div id="pack-status" role="status" aria-live="polite" class="pack-status">Checking for bundled artist-permitted character parts…</div><div id="pack-applied-stack" class="pack-status" style="margin-top:9px" aria-live="polite">0 sprite layers applied. Select a base first, then clothes, hair and accessories.</div>
       <div class="pack-filter-bar">
         <label class="pack-field">Search <input type="search" id="pack-search" placeholder="Name, outfit, hair, overworld…"></label>
         <label class="pack-field">Pack <select id="pack-source"><option value="all">All packs</option></select></label>
         <label class="pack-field">Type <select id="pack-type"><option value="all">All sprites</option><option value="hair">Hair</option><option value="clothes">Clothes</option><option value="accessories">Accessories</option><option value="base">Body/base</option><option value="overworld">Overworlds</option><option value="battle">Battle portraits</option><option value="other">Other</option></select></label>
         <span id="pack-count" class="pack-count">0 sprites</span>
       </div>
-      <div id="pack-gallery" class="pack-gallery"><p class="pack-empty">Imported PNGs will show up here. The bundled starter art remains usable without any packs.</p></div>
-      <div class="pack-footer"><button class="button button-soft" id="pack-show-more" hidden type="button">Show more sprites</button><span>Pack files stay in this browser tab only. Nothing uploads to a server or GitHub.</span></div>
+      <div id="pack-gallery" class="pack-gallery"><p class="pack-empty">Imported or built-in sprite artwork will appear here. The original starter character is available above.</p></div>
+      <div class="pack-footer"><button class="button button-soft" id="pack-show-more" hidden type="button">Show more sprites</button><span>Built-in creator-shared art is hosted. Your imported packs stay inside your browser tab and aren't uploaded.</span></div>
       <div id="pack-detail" class="pack-detail" hidden>
         <div class="pack-selected-preview"><canvas id="pack-selected-canvas" width="32" height="48"></canvas></div>
         <div class="pack-selected-info">
@@ -661,7 +700,7 @@ bind();bindPackVault();refresh();renderLayers();renderPackGallery();
         </div>
       </div>
     </section>
-    <footer class="main-footer"><span>TRAINER LAB <b>✳</b> CHARACTER CREATOR</span><span>Starter art is original • External sprite packs remain local</span><span>v2.0</span></footer>
+    <footer class="main-footer"><span>TRAINER LAB <b>✳</b> CHARACTER CREATOR</span><span>Original starter art • Creator-shared assets credited • Restricted packs stay local</span><span>v2.1</span></footer>
   </div>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 </body>
