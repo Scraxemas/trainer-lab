@@ -61,7 +61,111 @@
 @media(max-width:760px){.pack-library{width:calc(100% - 28px);margin:4px auto 18px}}
 
 </style>
-  <script defer>
+
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brandmark" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+        <div><div class="brandname">TRAINER<span>LAB</span><span class="brand-spark">✳</span></div><div class="brand-sub">PIXEL CHARACTER STUDIO · 1,709 IMPORTED ASSETS</div></div>
+      </div>
+      <div class="header-center"><span class="status-dot"></span> <a href="#sprite-vault" style="color:inherit;text-decoration:underline">OPEN SPRITE VAULT ↓</a> <span class="header-sep">/</span> CREATE MODE <span class="header-sep">/</span> GEN IV–V INSPIRED</div>
+      <div class="header-actions">
+        <button id="randomize-header" class="button button-ghost"><span class="button-symbol">✦</span> Randomize</button>
+        <button id="save-json" class="button button-ghost"><span class="button-symbol">↧</span> Save Build</button>
+        <button id="export-header" class="button button-primary"><span class="button-symbol">↗</span> Export Sprites</button>
+      </div>
+    </header>
+
+    <main class="workspace">
+      <aside class="controls panel" aria-label="Character controls">
+        <div class="panel-intro"><div class="overline">01 / THE WORKSHOP</div><h2>Make it <em>yours.</em></h2><p>Every great adventure starts with a character.</p></div>
+        <div id="category-tabs" class="category-tabs" role="tablist" aria-label="Customizer categories">
+          <button class="category-tab active" data-tab="appearance" role="tab" aria-selected="true"><span>◎</span> Appearance</button>
+          <button class="category-tab" data-tab="hair" role="tab" aria-selected="false"><span>✳</span> Hair & face</button>
+          <button class="category-tab" data-tab="clothes" role="tab" aria-selected="false"><span>▧</span> Clothing</button>
+          <button class="category-tab" data-tab="accessories" role="tab" aria-selected="false"><span>◇</span> Accessories</button>
+        </div>
+        <div class="controls-scroll"><div id="control-content" class="control-content"></div></div>
+        <div class="controls-footer"><button id="reset-character" class="button button-soft">↺ &nbsp; Reset character</button><span>Changes saved in browser</span></div>
+      </aside>
+
+      <section class="preview-area" aria-label="Character preview">
+        <div class="preview-top"><div><div class="overline">02 / YOUR CREATION</div><h1>The adventure <em>is you.</em></h1><p>Mix a look. Make it yours. Take it into your world.</p></div><div class="style-switch" role="group" aria-label="Sprite style"><button data-style="gen4" class="style-button">GEN IV</button><button data-style="gen5" class="style-button selected">GEN V</button></div></div>
+        <div class="preview-stage bg-meadow" id="preview-stage">
+          <div class="stage-grid" aria-hidden="true"></div>
+          <div class="stage-topline"><span><span class="live-dot"></span> LIVE PREVIEW</span><span>32 × 48 PX</span></div>
+          <div class="scene-decoration deco-left" aria-hidden="true">✦</div><div class="scene-decoration deco-right" aria-hidden="true">✧</div>
+          <div class="scene-shadow"></div><canvas id="preview" width="32" height="48" role="img" aria-label="Your pixel-art trainer character"></canvas>
+          <div class="stage-bottomline"><span id="style-caption">GEN V / PIXEL STYLE</span><span>100% ORIGINAL STARTER ART</span></div>
+        </div>
+        <div class="view-toolbar"><div class="view-set"><span class="toolbar-label">VIEW</span><button data-dir="front" class="direction selected" title="Front">↓</button><button data-dir="left" class="direction" title="Left">←</button><button data-dir="back" class="direction" title="Back">↑</button><button data-dir="right" class="direction" title="Right">→</button></div><div class="view-right"><button id="animation-toggle" class="view-option active"><span id="animation-glyph">Ⅱ</span> <span id="animation-label">Pause animation</span></button><label class="zoom-label" for="zoom">ZOOM</label><input id="zoom" type="range" min="5" max="10" step="1" value="8"><span id="zoom-label">8×</span></div></div>
+        <div class="preview-footer"><span class="footer-square"></span> MADE WITH PIXELS & POSSIBILITIES <span class="preview-footer-end">NO ACCOUNT • NO UPLOADS • JUST CREATE</span></div>
+      </section>
+
+      <aside class="inspector panel" aria-label="Presets and export">
+        <div class="inspector-head"><div class="overline">03 / FINISHING TOUCHES</div><h2>Quick start<span class="asterisk">✳</span></h2><p>Try a look, then remix everything.</p></div>
+        <div id="preset-grid" class="preset-grid"></div>
+        <div class="panel-divider"></div>
+        <div class="tool-heading"><div><div class="overline">YOUR TOOLKIT</div><h3>Sprite controls</h3></div></div>
+        <div class="detail-grid"><div class="detail-card"><strong>32×48</strong><span>FRAME SIZE</span></div><div class="detail-card"><strong>4 × 4</strong><span>SPRITE GRID</span></div></div>
+        <div class="export-buttons"><button id="export-sheet" class="button button-primary button-wide">↗ &nbsp; Download sprite sheet <span>PNG</span></button><button id="export-single" class="button button-outline button-wide">↓ &nbsp; Download current pose <span>PNG</span></button></div>
+        <div class="panel-divider"></div>
+        <div class="tool-heading"><div><div class="overline">EXTRA LAYERS</div><h3>Bring your own pixels</h3></div></div>
+        <p class="helper">Add transparent 32×48 PNG layers, or 128×192 sheets with 4 directions × 4 frames. Files stay on your device. Import full asset packs in the Sprite Vault below.</p>
+        <label class="upload-button" for="import-png"><span class="upload-plus">+</span><span><strong>Import PNG layers</strong><small>Overlay outfits, hair, and more</small></span></label>
+        <input type="file" id="import-png" accept="image/png" multiple hidden>
+        <div id="layers-list" class="layers-list" aria-live="polite"><div class="empty-layers">No custom layers added yet</div></div>
+        <div class="panel-divider"></div>
+        <button id="load-json-button" class="button button-soft button-wide">↑ &nbsp; Load saved character JSON</button>
+        <input id="load-json" type="file" accept=".json,application/json" hidden>
+      </aside>
+    </main>
+    <section id="sprite-vault" class="pack-library panel" aria-label="Imported sprite pack library">
+      <div class="pack-library-head">
+        <div><div class="overline">04 / THE SPRITE VAULT</div><h2>Ready-to-use sprite library<span class="asterisk">✳</span></h2><p>Creator-shared Gen IV character parts load from the built-in collection when available. Mix and stack compatible layers. Add your own ZIP or folder too.</p></div>
+        <div class="pack-actions">
+          <label class="button button-primary" for="import-pack-zip">↧ Import ZIP pack</label>
+          <label class="button button-outline" for="import-pack-folder">▣ Import extracted folder</label>
+          <button class="button button-ghost" id="clear-pack-library" type="button">Clear imports</button>
+          <input id="import-pack-zip" type="file" accept=".zip,application/zip,application/x-zip-compressed" multiple hidden>
+          <input id="import-pack-folder" type="file" webkitdirectory directory multiple hidden>
+        </div>
+      </div>
+      <div class="source-strip">
+        <span>Get the originals from their creators:</span>
+        <a target="_blank" rel="noopener noreferrer" href="https://eeveeexpo.com/resources/317/">Poltergeist Gen IV ↗</a>
+        <a target="_blank" rel="noopener noreferrer" href="https://eeveeexpo.com/resources/609/">Ultimate Gen IV ↗</a>
+        <a target="_blank" rel="noopener noreferrer" href="https://eeveeexpo.com/resources/619/">Ultimate Gen V ↗</a>
+      </div>
+      <div id="pack-status" role="status" aria-live="polite" class="pack-status">Checking for bundled artist-permitted character parts…</div><div id="pack-applied-stack" class="pack-status" style="margin-top:9px" aria-live="polite">0 sprite layers applied. Select a base first, then clothes, hair and accessories.</div>
+      <div class="pack-filter-bar">
+        <label class="pack-field">Search <input type="search" id="pack-search" placeholder="Name, outfit, hair, overworld…"></label>
+        <label class="pack-field">Pack <select id="pack-source"><option value="all">All packs</option></select></label>
+        <label class="pack-field">Type <select id="pack-type"><option value="all">All sprites</option><option value="hair">Hair</option><option value="clothes">Clothes</option><option value="accessories">Accessories</option><option value="base">Body/base</option><option value="overworld">Overworlds</option><option value="battle">Battle portraits</option><option value="other">Other</option></select></label>
+        <span id="pack-count" class="pack-count">0 sprites</span>
+      </div>
+      <div id="pack-gallery" class="pack-gallery"><p class="pack-empty">Imported or built-in sprite artwork will appear here. The original starter character is available above.</p></div>
+      <div class="pack-footer"><button class="button button-soft" id="pack-show-more" hidden type="button">Show more sprites</button><span>Built-in creator-shared art is hosted. Your imported packs stay inside your browser tab and aren't uploaded.</span></div>
+      <div id="pack-detail" class="pack-detail" hidden>
+        <div class="pack-selected-preview"><canvas id="pack-selected-canvas" width="32" height="48"></canvas></div>
+        <div class="pack-selected-info">
+          <strong id="pack-selected-name"></strong>
+          <span id="pack-selected-meta"></span>
+          <div class="pack-detail-fields">
+            <label>Apply as <select id="pack-apply"><option value="replace">Full sprite (replaces starter)</option><option value="overlay">Transparent layer (on top)</option></select></label>
+            <label>Frame layout <select id="pack-layout"><option value="auto">Auto detect</option><option value="4x4">4 columns × 4 rows</option><option value="3x4">3 columns × 4 rows</option><option value="5x1">5 columns × 1 row</option><option value="1x1">Single image</option></select></label>
+            <label>Frame offset <input id="pack-frame-offset" type="number" value="0" min="0" max="999" step="1"></label>
+          </div>
+          <div class="pack-selected-actions"><button id="pack-apply-selected" class="button button-primary" type="button">Apply sprite to trainer</button><button id="pack-remove-selected" class="button button-outline" type="button">Remove applied sprite</button></div>
+        </div>
+      </div>
+    </section>
+    <footer class="main-footer"><span>TRAINER LAB <b>✳</b> CHARACTER CREATOR</span><span>Original starter art • Creator-shared assets credited • Restricted packs stay local</span><span>v2.1</span></footer>
+  </div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script>
 /* Trainer Lab: self-contained, original pixel-art character creation.
    No network requests, game assets, external sprites, or user-image uploads. */
 (() => {
@@ -600,108 +704,5 @@ bind();bindPackVault();refresh();renderLayers();renderPackGallery();loadBuiltInA
 })();
 
 </script>
-</head>
-<body>
-  <div class="app-shell">
-    <header class="topbar">
-      <div class="brand">
-        <div class="brandmark" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
-        <div><div class="brandname">TRAINER<span>LAB</span><span class="brand-spark">✳</span></div><div class="brand-sub">PIXEL CHARACTER STUDIO · 1,709 IMPORTED ASSETS</div></div>
-      </div>
-      <div class="header-center"><span class="status-dot"></span> <a href="#sprite-vault" style="color:inherit;text-decoration:underline">OPEN SPRITE VAULT ↓</a> <span class="header-sep">/</span> CREATE MODE <span class="header-sep">/</span> GEN IV–V INSPIRED</div>
-      <div class="header-actions">
-        <button id="randomize-header" class="button button-ghost"><span class="button-symbol">✦</span> Randomize</button>
-        <button id="save-json" class="button button-ghost"><span class="button-symbol">↧</span> Save Build</button>
-        <button id="export-header" class="button button-primary"><span class="button-symbol">↗</span> Export Sprites</button>
-      </div>
-    </header>
-
-    <main class="workspace">
-      <aside class="controls panel" aria-label="Character controls">
-        <div class="panel-intro"><div class="overline">01 / THE WORKSHOP</div><h2>Make it <em>yours.</em></h2><p>Every great adventure starts with a character.</p></div>
-        <div id="category-tabs" class="category-tabs" role="tablist" aria-label="Customizer categories">
-          <button class="category-tab active" data-tab="appearance" role="tab" aria-selected="true"><span>◎</span> Appearance</button>
-          <button class="category-tab" data-tab="hair" role="tab" aria-selected="false"><span>✳</span> Hair & face</button>
-          <button class="category-tab" data-tab="clothes" role="tab" aria-selected="false"><span>▧</span> Clothing</button>
-          <button class="category-tab" data-tab="accessories" role="tab" aria-selected="false"><span>◇</span> Accessories</button>
-        </div>
-        <div class="controls-scroll"><div id="control-content" class="control-content"></div></div>
-        <div class="controls-footer"><button id="reset-character" class="button button-soft">↺ &nbsp; Reset character</button><span>Changes saved in browser</span></div>
-      </aside>
-
-      <section class="preview-area" aria-label="Character preview">
-        <div class="preview-top"><div><div class="overline">02 / YOUR CREATION</div><h1>The adventure <em>is you.</em></h1><p>Mix a look. Make it yours. Take it into your world.</p></div><div class="style-switch" role="group" aria-label="Sprite style"><button data-style="gen4" class="style-button">GEN IV</button><button data-style="gen5" class="style-button selected">GEN V</button></div></div>
-        <div class="preview-stage bg-meadow" id="preview-stage">
-          <div class="stage-grid" aria-hidden="true"></div>
-          <div class="stage-topline"><span><span class="live-dot"></span> LIVE PREVIEW</span><span>32 × 48 PX</span></div>
-          <div class="scene-decoration deco-left" aria-hidden="true">✦</div><div class="scene-decoration deco-right" aria-hidden="true">✧</div>
-          <div class="scene-shadow"></div><canvas id="preview" width="32" height="48" role="img" aria-label="Your pixel-art trainer character"></canvas>
-          <div class="stage-bottomline"><span id="style-caption">GEN V / PIXEL STYLE</span><span>100% ORIGINAL STARTER ART</span></div>
-        </div>
-        <div class="view-toolbar"><div class="view-set"><span class="toolbar-label">VIEW</span><button data-dir="front" class="direction selected" title="Front">↓</button><button data-dir="left" class="direction" title="Left">←</button><button data-dir="back" class="direction" title="Back">↑</button><button data-dir="right" class="direction" title="Right">→</button></div><div class="view-right"><button id="animation-toggle" class="view-option active"><span id="animation-glyph">Ⅱ</span> <span id="animation-label">Pause animation</span></button><label class="zoom-label" for="zoom">ZOOM</label><input id="zoom" type="range" min="5" max="10" step="1" value="8"><span id="zoom-label">8×</span></div></div>
-        <div class="preview-footer"><span class="footer-square"></span> MADE WITH PIXELS & POSSIBILITIES <span class="preview-footer-end">NO ACCOUNT • NO UPLOADS • JUST CREATE</span></div>
-      </section>
-
-      <aside class="inspector panel" aria-label="Presets and export">
-        <div class="inspector-head"><div class="overline">03 / FINISHING TOUCHES</div><h2>Quick start<span class="asterisk">✳</span></h2><p>Try a look, then remix everything.</p></div>
-        <div id="preset-grid" class="preset-grid"></div>
-        <div class="panel-divider"></div>
-        <div class="tool-heading"><div><div class="overline">YOUR TOOLKIT</div><h3>Sprite controls</h3></div></div>
-        <div class="detail-grid"><div class="detail-card"><strong>32×48</strong><span>FRAME SIZE</span></div><div class="detail-card"><strong>4 × 4</strong><span>SPRITE GRID</span></div></div>
-        <div class="export-buttons"><button id="export-sheet" class="button button-primary button-wide">↗ &nbsp; Download sprite sheet <span>PNG</span></button><button id="export-single" class="button button-outline button-wide">↓ &nbsp; Download current pose <span>PNG</span></button></div>
-        <div class="panel-divider"></div>
-        <div class="tool-heading"><div><div class="overline">EXTRA LAYERS</div><h3>Bring your own pixels</h3></div></div>
-        <p class="helper">Add transparent 32×48 PNG layers, or 128×192 sheets with 4 directions × 4 frames. Files stay on your device. Import full asset packs in the Sprite Vault below.</p>
-        <label class="upload-button" for="import-png"><span class="upload-plus">+</span><span><strong>Import PNG layers</strong><small>Overlay outfits, hair, and more</small></span></label>
-        <input type="file" id="import-png" accept="image/png" multiple hidden>
-        <div id="layers-list" class="layers-list" aria-live="polite"><div class="empty-layers">No custom layers added yet</div></div>
-        <div class="panel-divider"></div>
-        <button id="load-json-button" class="button button-soft button-wide">↑ &nbsp; Load saved character JSON</button>
-        <input id="load-json" type="file" accept=".json,application/json" hidden>
-      </aside>
-    </main>
-    <section id="sprite-vault" class="pack-library panel" aria-label="Imported sprite pack library">
-      <div class="pack-library-head">
-        <div><div class="overline">04 / THE SPRITE VAULT</div><h2>Ready-to-use sprite library<span class="asterisk">✳</span></h2><p>Creator-shared Gen IV character parts load from the built-in collection when available. Mix and stack compatible layers. Add your own ZIP or folder too.</p></div>
-        <div class="pack-actions">
-          <label class="button button-primary" for="import-pack-zip">↧ Import ZIP pack</label>
-          <label class="button button-outline" for="import-pack-folder">▣ Import extracted folder</label>
-          <button class="button button-ghost" id="clear-pack-library" type="button">Clear imports</button>
-          <input id="import-pack-zip" type="file" accept=".zip,application/zip,application/x-zip-compressed" multiple hidden>
-          <input id="import-pack-folder" type="file" webkitdirectory directory multiple hidden>
-        </div>
-      </div>
-      <div class="source-strip">
-        <span>Get the originals from their creators:</span>
-        <a target="_blank" rel="noopener noreferrer" href="https://eeveeexpo.com/resources/317/">Poltergeist Gen IV ↗</a>
-        <a target="_blank" rel="noopener noreferrer" href="https://eeveeexpo.com/resources/609/">Ultimate Gen IV ↗</a>
-        <a target="_blank" rel="noopener noreferrer" href="https://eeveeexpo.com/resources/619/">Ultimate Gen V ↗</a>
-      </div>
-      <div id="pack-status" role="status" aria-live="polite" class="pack-status">Checking for bundled artist-permitted character parts…</div><div id="pack-applied-stack" class="pack-status" style="margin-top:9px" aria-live="polite">0 sprite layers applied. Select a base first, then clothes, hair and accessories.</div>
-      <div class="pack-filter-bar">
-        <label class="pack-field">Search <input type="search" id="pack-search" placeholder="Name, outfit, hair, overworld…"></label>
-        <label class="pack-field">Pack <select id="pack-source"><option value="all">All packs</option></select></label>
-        <label class="pack-field">Type <select id="pack-type"><option value="all">All sprites</option><option value="hair">Hair</option><option value="clothes">Clothes</option><option value="accessories">Accessories</option><option value="base">Body/base</option><option value="overworld">Overworlds</option><option value="battle">Battle portraits</option><option value="other">Other</option></select></label>
-        <span id="pack-count" class="pack-count">0 sprites</span>
-      </div>
-      <div id="pack-gallery" class="pack-gallery"><p class="pack-empty">Imported or built-in sprite artwork will appear here. The original starter character is available above.</p></div>
-      <div class="pack-footer"><button class="button button-soft" id="pack-show-more" hidden type="button">Show more sprites</button><span>Built-in creator-shared art is hosted. Your imported packs stay inside your browser tab and aren't uploaded.</span></div>
-      <div id="pack-detail" class="pack-detail" hidden>
-        <div class="pack-selected-preview"><canvas id="pack-selected-canvas" width="32" height="48"></canvas></div>
-        <div class="pack-selected-info">
-          <strong id="pack-selected-name"></strong>
-          <span id="pack-selected-meta"></span>
-          <div class="pack-detail-fields">
-            <label>Apply as <select id="pack-apply"><option value="replace">Full sprite (replaces starter)</option><option value="overlay">Transparent layer (on top)</option></select></label>
-            <label>Frame layout <select id="pack-layout"><option value="auto">Auto detect</option><option value="4x4">4 columns × 4 rows</option><option value="3x4">3 columns × 4 rows</option><option value="5x1">5 columns × 1 row</option><option value="1x1">Single image</option></select></label>
-            <label>Frame offset <input id="pack-frame-offset" type="number" value="0" min="0" max="999" step="1"></label>
-          </div>
-          <div class="pack-selected-actions"><button id="pack-apply-selected" class="button button-primary" type="button">Apply sprite to trainer</button><button id="pack-remove-selected" class="button button-outline" type="button">Remove applied sprite</button></div>
-        </div>
-      </div>
-    </section>
-    <footer class="main-footer"><span>TRAINER LAB <b>✳</b> CHARACTER CREATOR</span><span>Original starter art • Creator-shared assets credited • Restricted packs stay local</span><span>v2.1</span></footer>
-  </div>
-  <div id="toast" class="toast" role="status" aria-live="polite"></div>
 </body>
 </html>
