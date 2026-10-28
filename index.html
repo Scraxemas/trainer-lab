@@ -1,0 +1,668 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#131e31">
+  <meta name="description" content="Build, customize, and export pixel-art trainer characters in a Gen 4/5-inspired style.">
+  <title>Trainer Lab — Pixel Character Creator</title>
+  <style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+:root{--navy:#152336;--navy2:#1c2e43;--ink:#203147;--muted:#788597;--paper:#f6f7f4;--cream:#fffefa;--border:#e4e9e8;--violet:#7254cc;--violet-dark:#573caf;--soft:#f1f2f1;--green:#30ad83;--shadow:0 6px 25px rgba(35,55,71,.055)}
+*{box-sizing:border-box}html,body{margin:0;min-width:320px;min-height:100%;background:var(--paper);color:var(--ink);font-family:'DM Sans',system-ui,-apple-system,sans-serif}button,input{font:inherit}button{cursor:pointer}button:focus-visible,label:focus-visible,input:focus-visible{outline:3px solid #b7a8ed;outline-offset:2px}.app-shell{min-height:100vh;display:flex;flex-direction:column}.topbar{height:79px;background:var(--navy);color:white;display:flex;align-items:center;justify-content:space-between;padding:0 30px;gap:20px;border-bottom:3px solid #263b52}.brand{display:flex;align-items:center;gap:12px;flex-shrink:0}.brandmark{width:38px;height:38px;display:grid;grid-template-columns:repeat(2,1fr);gap:3px;transform:rotate(-8deg)}.brandmark i{background:#9a87ed;border-radius:3px;box-shadow:inset -3px -3px 0 #6a50ba}.brandmark i:nth-child(2){background:#ffd17c;box-shadow:inset -3px -3px #e7a457}.brandmark i:nth-child(3){background:#63c3a5;box-shadow:inset -3px -3px #319b7a}.brandmark i:nth-child(4){background:#fc899b;box-shadow:inset -3px -3px #e75e78}.brandname{font-family:'Space Grotesk',sans-serif;font-size:21px;letter-spacing:-1px;font-weight:700;line-height:1}.brandname>span:first-child{color:#b8a9fc}.brand-spark{color:#f3bd69;font-size:16px;margin-left:4px}.brand-sub{font-size:8px;letter-spacing:2.25px;margin-top:5px;color:#8ea0b7;font-weight:800}.header-center{font-size:10px;font-weight:800;letter-spacing:1.45px;color:#96a8b9;display:flex;align-items:center;gap:11px}.status-dot,.live-dot{width:7px;height:7px;border-radius:50%;background:#4fe0a2;display:inline-block;box-shadow:0 0 0 3px #4fe0a220}.header-sep{color:#52647a}.header-actions{display:flex;gap:9px}.button{display:inline-flex;align-items:center;justify-content:center;gap:7px;border-radius:9px;padding:12px 16px;font-size:12px;font-weight:800;border:1px solid transparent;transition:background .17s,transform .17s,color .17s;white-space:nowrap}.button:active{transform:translateY(1px)}.button-ghost{color:#d7e0ef;border-color:#405067;background:#25364c}.button-ghost:hover{background:#344760}.button-primary{background:var(--violet);color:white;box-shadow:0 3px 0 #5339a3}.button-primary:hover{background:var(--violet-dark)}.button-symbol{font-size:16px;line-height:0}.button-soft{background:#f0f2f3;color:#536477}.button-soft:hover{background:#e5e9f0}.button-outline{color:var(--ink);background:white;border-color:var(--border)}.button-outline:hover{border-color:#ab9add;color:var(--violet)}.button-wide{width:100%;justify-content:flex-start;font-size:12px;padding:14px}.button-wide span{margin-left:auto;font-size:10px;letter-spacing:1px;opacity:.7}.workspace{display:grid;grid-template-columns:286px minmax(420px,1fr) 295px;gap:19px;padding:23px 23px 15px;flex:1;max-width:1630px;width:100%;margin:auto;align-items:stretch}.panel{background:#fff;border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);min-width:0}.controls{display:flex;flex-direction:column;overflow:hidden;max-height:calc(100vh - 140px);min-height:695px}.panel-intro{padding:25px 22px 20px}.overline{font-size:9px;font-weight:800;letter-spacing:2.2px;color:var(--violet);text-transform:uppercase}.panel-intro h2,.inspector-head h2{font-family:'Space Grotesk',sans-serif;margin:10px 0 6px;font-size:25px;font-weight:700;letter-spacing:-1.2px}.panel-intro h2 em,.preview-top h1 em{font-style:normal;color:var(--violet)}.panel-intro p,.inspector-head p,.preview-top p{margin:0;color:var(--muted);font-size:12px;line-height:1.6}.category-tabs{display:grid;grid-template-columns:repeat(2,1fr);gap:7px;padding:0 16px 17px;border-bottom:1px solid var(--border)}.category-tab{border:1px solid #e7e9ed;background:#f7f8f7;border-radius:9px;padding:10px 4px;color:#667386;font-weight:800;font-size:11px;display:flex;align-items:center;justify-content:center;gap:6px}.category-tab span{font-size:17px;font-weight:400;line-height:0}.category-tab.active{color:var(--violet);border-color:#d8d0f7;background:#f4f0ff}.category-tab:hover:not(.active){border-color:#c1c7d0}.controls-scroll{overflow-y:auto;flex:1;scrollbar-color:#c6c4d1 transparent;scrollbar-width:thin}.control-content{padding:19px 20px 24px}.group{margin-bottom:25px}.group:last-child{margin-bottom:0}.group-heading{font-size:11px;font-weight:800;display:flex;justify-content:space-between;margin-bottom:11px;align-items:center}.group-heading small{font-size:10px;color:var(--muted);font-weight:600}.option-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.option-grid.three{grid-template-columns:repeat(3,1fr)}.option{background:#fafbfa;border:1px solid #e4e8e9;border-radius:9px;min-height:42px;padding:8px 7px;display:flex;justify-content:center;align-items:center;gap:5px;font-size:11px;font-weight:800;color:#6b7786;text-align:center}.option.selected{background:#f5f0ff;border:1.5px solid #866be2;color:#6844c3}.option:hover:not(.selected){border-color:#bcb5d9}.option-icon{font-size:14px;font-weight:400}.palette{display:grid;grid-template-columns:repeat(7,1fr);gap:7px}.swatch{aspect-ratio:1;width:100%;min-width:0;border:2px solid white;border-radius:9px;box-shadow:0 0 0 1px #dfe3e3;position:relative;transition:transform .13s}.swatch:hover{transform:translateY(-2px)}.swatch.selected{box-shadow:0 0 0 2px #6245c3}.swatch.selected:after{content:'✓';color:white;text-shadow:0 1px 2px #0009;font-size:12px;font-weight:900;display:grid;place-items:center;position:absolute;inset:0}.controls-footer{border-top:1px solid var(--border);padding:13px 19px;display:flex;align-items:center;gap:11px;flex-wrap:wrap;justify-content:center}.controls-footer .button{padding:9px 12px}.controls-footer span{font-size:10px;color:#a3a9b2}.preview-area{min-width:0;display:flex;flex-direction:column;gap:14px}.preview-top{display:flex;align-items:flex-start;justify-content:space-between;gap:15px;padding:18px 8px 4px}.preview-top h1{font-family:'Space Grotesk',sans-serif;letter-spacing:-1.8px;font-size:clamp(27px,2.5vw,36px);line-height:1.1;margin:8px 0 9px}.preview-top p{font-size:12px}.style-switch{display:flex;background:#e9e9ec;border-radius:11px;padding:4px;align-items:center;flex-shrink:0;margin-top:20px;gap:2px}.style-button{background:transparent;border:0;border-radius:8px;padding:9px 13px;color:#8a92a0;font-weight:800;font-size:10px;letter-spacing:.6px}.style-button.selected{background:white;color:var(--violet);box-shadow:0 2px 5px #1b2b3720}.preview-stage{min-height:480px;height:clamp(480px,58vh,660px);position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;border-radius:16px;border:1px solid #dee1e9;isolation:isolate;transition:background .3s}.preview-stage.bg-meadow{background:linear-gradient(170deg,#e7edfc 0%,#faf1e6 62%,#dbe9cb 100%)}.preview-stage.bg-checker{background-color:#f5f5f7;background-image:linear-gradient(45deg,#e8e8ef 25%,transparent 25%),linear-gradient(-45deg,#e8e8ef 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#e8e8ef 75%),linear-gradient(-45deg,transparent 75%,#e8e8ef 75%);background-size:32px 32px;background-position:0 0,0 16px,16px -16px,-16px 0}.preview-stage.bg-night{background:linear-gradient(165deg,#253250 0%,#495070 64%,#7b6984 100%)}.stage-grid{position:absolute;inset:0;background-image:linear-gradient(#ffffff22 1px,transparent 1px),linear-gradient(90deg,#ffffff22 1px,transparent 1px);background-size:24px 24px;mask-image:linear-gradient(to bottom,transparent 0%,#000 60%,transparent 100%);z-index:-1}.preview-stage:after{content:'';position:absolute;bottom:-130px;width:105%;height:240px;border-radius:50%;background:#bccdaa66;z-index:-1;box-shadow:0 -3px 0 #ffffff52}.preview-stage.bg-checker:after{background:#b9b9c12e}.preview-stage.bg-night:after{background:#252e4b87}.stage-topline,.stage-bottomline{display:flex;justify-content:space-between;align-items:center;position:absolute;left:23px;right:23px;color:#6c7998;z-index:4;font-size:10px;font-weight:900;letter-spacing:1.2px}.stage-topline{top:23px}.stage-topline>span:first-child{display:flex;gap:10px;align-items:center}.stage-bottomline{bottom:23px;font-size:9px;color:#7986a0}.bg-night .stage-topline,.bg-night .stage-bottomline{color:#d1d5e7}.scene-decoration{position:absolute;font-size:80px;opacity:.27;color:#8a94da;z-index:-1}.deco-left{top:23%;left:11%;transform:rotate(15deg)}.deco-right{bottom:24%;right:11%;font-size:53px;color:#85bea5}.scene-shadow{position:absolute;width:150px;height:23px;border-radius:50%;background:#46587b22;top:calc(50% + 155px);filter:blur(5px)}#preview{width:256px;height:384px;max-width:90%;object-fit:contain;image-rendering:pixelated;image-rendering:crisp-edges;filter:drop-shadow(0px 7px 0px #28334818);z-index:2;transition:width .15s,height .15s}.view-toolbar{background:white;border:1px solid var(--border);border-radius:12px;display:flex;justify-content:space-between;align-items:center;padding:11px 16px;gap:12px;box-shadow:var(--shadow);flex-wrap:wrap}.view-set,.view-right{display:flex;align-items:center;gap:7px}.toolbar-label,.zoom-label{font-size:9px;letter-spacing:1.3px;font-weight:900;color:#9ba4af;margin-right:6px}.direction{height:32px;width:34px;border-radius:8px;border:1px solid #e3e7ea;background:#f5f7f8;color:#788296;font-size:19px;font-weight:700;line-height:1}.direction.selected{background:#7254cc;color:#fff;border-color:#7254cc}.view-option{background:#f4f5f7;color:#728092;border:1px solid #e5e9ea;padding:9px 10px;border-radius:8px;font-size:10px;font-weight:800}.view-option.active{background:#ebf9f4;border-color:#cbeee1;color:#269774}.zoom-label{margin-left:8px;margin-right:0}#zoom{width:62px;accent-color:#7457c9}#zoom-label{font-size:11px;color:#59687c;font-weight:800;min-width:19px}.preview-footer{font-size:9px;color:#9ba5ae;font-weight:900;letter-spacing:1.35px;padding:1px 8px;display:flex;align-items:center;gap:7px}.footer-square{background:#a6a1d9;width:6px;height:6px;border-radius:1px}.preview-footer-end{margin-left:auto}.inspector{padding:24px 20px;align-self:stretch}.inspector-head h2{margin-bottom:6px}.asterisk{color:#eeb973;font-size:20px;margin-left:4px}.preset-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:19px}.preset{border:1px solid #e4e9e8;background:#fafbf9;border-radius:11px;display:flex;flex-direction:column;align-items:center;padding:9px 5px 10px;gap:7px;font-weight:800;color:#627087;font-size:11px;min-width:0}.preset:hover,.preset.selected{border-color:#9b85e2;background:#f7f3ff;color:#674ac2}.preset canvas{width:64px;height:96px;image-rendering:pixelated}.preset .preset-num{font-size:8px;letter-spacing:1.6px;color:#a5adba}.panel-divider{height:1px;background:var(--border);margin:23px 0}.tool-heading h3{font-family:'Space Grotesk',sans-serif;margin:6px 0 13px;font-size:17px;letter-spacing:-.35px}.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:14px}.detail-card{background:#f6f7f7;border:1px solid #eceded;border-radius:10px;padding:14px 11px;display:flex;flex-direction:column;gap:4px}.detail-card strong{font-family:'Space Grotesk',sans-serif;font-size:22px;letter-spacing:-1px}.detail-card span{font-size:9px;font-weight:800;letter-spacing:1.05px;color:#929ba8}.export-buttons{display:flex;flex-direction:column;gap:9px}.helper{font-size:11px;line-height:1.6;color:#8b96a4;margin:-3px 0 13px}.upload-button{border:1px dashed #c4bcde;background:#faf8ff;padding:12px;border-radius:10px;display:flex;align-items:center;gap:12px;color:#6550a5;cursor:pointer}.upload-button:hover{background:#f2ecff}.upload-plus{display:grid;place-items:center;border-radius:8px;width:29px;height:29px;font-size:22px;background:#ece5fd}.upload-button strong{font-size:11px;display:block}.upload-button small{font-size:10px;display:block;margin-top:2px;color:#9384ba}.layers-list{margin-top:10px;display:flex;flex-direction:column;gap:7px}.empty-layers{font-size:10px;color:#a5adb7;text-align:center;padding:5px}.layer-row{display:flex;align-items:center;gap:8px;padding:7px;border:1px solid #e7e8eb;border-radius:8px;font-size:10px}.layer-row label{flex:1;min-width:0;display:flex;align-items:center;gap:5px;cursor:pointer}.layer-row .layer-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.layer-row button{border:0;background:#f6eef1;color:#ac4e61;border-radius:5px;padding:4px 7px}.main-footer{padding:14px 25px 19px;max-width:1630px;margin:auto;width:100%;display:flex;justify-content:space-between;align-items:center;color:#a6b0b7;font-size:9px;font-weight:800;letter-spacing:1.2px;gap:10px}.main-footer b{color:#9f8cdf}.toast{position:fixed;z-index:30;bottom:23px;left:50%;transform:translate(-50%,30px);padding:12px 18px;background:#202e43;color:#fff;box-shadow:0 9px 35px #0003;border-radius:10px;max-width:90vw;opacity:0;pointer-events:none;font-size:12px;font-weight:800;transition:opacity .18s,transform .18s}.toast.show{opacity:1;transform:translate(-50%,0)}
+@media(max-width:1180px){.workspace{grid-template-columns:258px minmax(360px,1fr);gap:15px}.controls{min-height:680px;max-height:900px}.inspector{grid-column:1 / -1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 26px}.inspector-head,.preset-grid,.inspector>.panel-divider:first-of-type{grid-column:1}.preset-grid{grid-row:2}.inspector>.panel-divider{grid-column:1 / -1}.preview-stage{height:560px}.header-center{display:none}}
+@media(max-width:760px){.topbar{height:auto;min-height:71px;padding:15px;flex-wrap:wrap}.brandname{font-size:19px}.header-actions{width:100%;justify-content:stretch}.header-actions .button{flex:1;padding:11px 7px;font-size:10px}.workspace{grid-template-columns:1fr;padding:14px;gap:15px}.preview-area{grid-row:1}.preview-top{padding:10px 4px 1px}.preview-top h1{font-size:29px}.style-switch{margin-top:14px}.preview-stage{height:500px;min-height:450px}.view-toolbar{padding:10px}.view-right{flex-wrap:wrap}.controls{max-height:none;min-height:0}.controls-scroll{max-height:470px}.inspector{grid-column:1;display:block}.main-footer{padding:12px 16px 20px;flex-wrap:wrap;font-size:8px}.main-footer span:nth-child(2){order:3;flex-basis:100%}.preview-footer-end{display:none}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* Sprite Vault: local pack ingestion and visual browsing */
+.pack-library{grid-column:1/-1;margin-top:18px;padding:26px 28px 20px;min-width:0}
+.pack-library-head{display:flex;gap:24px;justify-content:space-between;align-items:center;flex-wrap:wrap}
+.pack-library-head h2{margin:5px 0 7px;font-family:inherit;font-size:26px;letter-spacing:-.8px}
+.pack-library-head p{font-size:13px;color:var(--text-muted,#91a0b9);max-width:670px;line-height:1.6}
+.pack-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.pack-actions label{cursor:pointer;display:inline-flex;align-items:center}
+.source-strip{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;margin:18px 0 12px;padding:13px 16px;background:#141e30;border-radius:10px;font-size:12px;color:#a2b2c9}
+.source-strip a{color:#8ddbd0;text-decoration:none;font-weight:700}
+.source-strip a:hover{text-decoration:underline}
+.pack-status{background:#152a38;border:1px solid #234858;border-radius:9px;color:#bce4d9;font-size:12px;padding:10px 13px;min-height:36px}
+.pack-status.warning{color:#f0cb91;background:#332818;border-color:#69502b}
+.pack-filter-bar{display:flex;flex-wrap:wrap;gap:10px;margin:16px 0;align-items:end}
+.pack-field{font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:#aebdd5;display:flex;flex-direction:column;gap:5px;flex:1;min-width:145px}
+.pack-field:first-child{flex:2;min-width:210px}
+.pack-field input,.pack-field select,.pack-detail select,.pack-detail input{min-width:0;max-width:100%;border-radius:8px;background:#121b2b;color:#f4f7fc;border:1px solid #43536c;padding:10px 9px;font:inherit;text-transform:none}
+.pack-count{font-size:12px;color:#aebdd5;padding:10px 0}
+.pack-gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(125px,1fr));gap:12px;max-height:460px;overflow:auto;align-content:start;min-height:110px}
+.pack-asset{background:#172239;color:#eef4fc;border:1px solid #33445d;border-radius:12px;display:flex;flex-direction:column;gap:5px;padding:8px;min-width:0;cursor:pointer;text-align:left;transition:border-color .15s,background .15s}
+.pack-asset:hover,.pack-asset.selected{background:#20314a;border-color:#78cfc2}
+.pack-thumb{height:99px;display:flex;align-items:center;justify-content:center;border-radius:7px;background-color:#223047;background-image:linear-gradient(45deg,#28384e 25%,transparent 25%),linear-gradient(-45deg,#28384e 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#28384e 75%),linear-gradient(-45deg,transparent 75%,#28384e 75%);background-size:16px 16px;background-position:0 0,0 8px,8px -8px,-8px 0}
+.pack-thumb canvas{width:64px;height:80px;object-fit:contain;image-rendering:pixelated}
+.pack-asset-name{font-size:11px;font-weight:750;white-space:nowrap;text-overflow:ellipsis;overflow:hidden}
+.pack-asset-meta{font-size:10px;color:#9daac3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pack-empty{grid-column:1/-1;color:#aab8d1;font-size:13px;padding:20px}
+.pack-footer{display:flex;justify-content:space-between;gap:12px;align-items:center;margin:12px 0;color:#a8b6ca;font-size:11px;flex-wrap:wrap}
+.pack-detail{margin-top:15px;padding:18px;background:#172338;border:1px solid #354c6d;border-radius:13px;display:flex;align-items:center;gap:20px;min-width:0}
+.pack-detail[hidden]{display:none}
+.pack-selected-preview{background:repeating-conic-gradient(#303e52 0 25%,#243348 0 50%) 50%/20px 20px;padding:12px;border-radius:9px;flex:0 0 auto}
+.pack-selected-preview canvas{height:144px;width:96px;image-rendering:pixelated}
+.pack-selected-info{display:flex;flex-direction:column;gap:8px;min-width:0;flex:1}
+.pack-selected-info strong{overflow-wrap:anywhere}
+.pack-selected-info>span{font-size:12px;color:#9facbe}
+.pack-detail-fields{display:flex;flex-wrap:wrap;gap:10px}
+.pack-detail-fields label{font-size:11px;color:#b5c3d8;display:flex;flex-direction:column;gap:5px;flex:1;min-width:120px}
+.pack-detail-fields label:nth-child(2){min-width:200px}
+.pack-selected-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:7px}
+.pack-selected-actions button{font-size:12px}
+@media(max-width:900px){.pack-library{padding:18px 12px}.pack-detail{align-items:flex-start;gap:10px}.pack-selected-preview canvas{height:96px;width:64px}.pack-gallery{grid-template-columns:repeat(auto-fill,minmax(105px,1fr))}}
+
+.pack-library{max-width:1584px;width:calc(100% - 46px);margin:8px auto 26px;background:#1c2c43;border-color:#314765;color:#edf4ff}
+.pack-library-head p{color:#adbbd0}.pack-library .overline{color:#c4b1ff}.pack-library-head h2{color:#edf4ff}
+.pack-library .button-outline{color:#293850}.pack-library .button-ghost{color:#e9effa}
+.pack-library .button-soft{color:#394b65;background:#d9e4ef}
+@media(max-width:760px){.pack-library{width:calc(100% - 28px);margin:4px auto 18px}}
+
+</style>
+  <script defer>
+/* Trainer Lab: self-contained, original pixel-art character creation.
+   No network requests, game assets, external sprites, or user-image uploads. */
+(() => {
+'use strict';
+const BASE = Object.freeze({
+  style:'gen5', body:'standard', skin:'#E5B18F', eyeColor:'#364F78', background:'meadow',
+  hairStyle:'swept', hairColor:'#523A43', top:'jacket', topColor:'#5279BF',
+  bottom:'pants', bottomColor:'#39465D', shoes:'sneakers', shoeColor:'#F7EBC9',
+  hat:'cap', hatColor:'#E86F73', bag:'satchel', bagColor:'#B48A65',
+  glasses:'none', scarf:'none', scarfColor:'#F4BE64', direction:'front', zoom:8, animate:true
+});
+const COLORS={
+ skin:['#F7DAB5','#EAC6A4','#E5B18F','#C98965','#A76B4D','#784B38','#4F342E'],
+ hair:['#2A2A37','#523A43','#79533F','#BA8560','#D8B17A','#E6D1A8','#D5D8E0','#A4566A','#8067A1','#3C7D7E','#4F6CA1','#7D4D2E','#B5AA6E','#E5E1D6'],
+ clothing:['#E86F73','#F2A85E','#F4D07F','#65B69C','#5279BF','#8B77C7','#CE81B0','#F3EBD8','#39465D','#AF6D57','#6D8B5B','#3A6A84','#B79D8A','#2A2B39'],
+ eyes:['#364F78','#3D806C','#744E38','#6A5C8F','#2E3849','#9C7043','#B6B5A8']
+};
+const LABELS={
+ appearance:[
+ {key:'body',label:'Body shape',type:'options',cols:3,items:[['slim','Slim','♙'],['standard','Classic','♟'],['sturdy','Sturdy','♜']]},
+ {key:'skin',label:'Skin tone',type:'colors',palette:'skin'},
+ {key:'background',label:'Preview background',type:'options',cols:3,items:[['meadow','Meadow','☼'],['checker','Canvas','▦'],['night','Dusk','☾']]}
+ ],
+ hair:[
+ {key:'hairStyle',label:'Hairstyle',type:'options',cols:2,items:[['swept','Side swept','⌁'],['short','Short cut','◡'],['spiky','Spiky','✳'],['bob','Bob','◠'],['long','Long','〰'],['ponytail','Ponytail','◌'],['curly','Curly','❃'],['mohawk','Mohawk','▲']]},
+ {key:'hairColor',label:'Hair color',type:'colors',palette:'hair'},
+ {key:'eyeColor',label:'Eye color',type:'colors',palette:'eyes'}
+ ],
+ clothes:[
+ {key:'top',label:'Top layer',type:'options',cols:2,items:[['tee','T-shirt','T'],['jacket','Jacket','▥'],['hoodie','Hoodie','▣'],['vest','Utility vest','▤'],['uniform','Uniform','◆'],['dress','Dress','♧']]},
+ {key:'topColor',label:'Top color',type:'colors',palette:'clothing'},
+ {key:'bottom',label:'Bottoms',type:'options',cols:3,items:[['pants','Pants','Ⅱ'],['shorts','Shorts','∏'],['skirt','Skirt','▽']]},
+ {key:'bottomColor',label:'Bottom color',type:'colors',palette:'clothing'},
+ {key:'shoes',label:'Footwear',type:'options',cols:3,items:[['sneakers','Sneakers','▬'],['boots','Boots','▰'],['flats','Flats','▱']]},
+ {key:'shoeColor',label:'Footwear color',type:'colors',palette:'clothing'}
+ ],
+ accessories:[
+ {key:'hat',label:'Headwear',type:'options',cols:3,items:[['none','None','×'],['cap','Cap','◕'],['beanie','Beanie','▣'],['bandana','Bandana','⌁']]},
+ {key:'hatColor',label:'Headwear color',type:'colors',palette:'clothing'},
+ {key:'bag',label:'Travel bag',type:'options',cols:3,items:[['none','None','×'],['satchel','Satchel','▤'],['backpack','Backpack','▥']]},
+ {key:'bagColor',label:'Bag color',type:'colors',palette:'clothing'},
+ {key:'glasses',label:'Glasses',type:'options',cols:2,items:[['none','None','×'],['round','Round','◎'],['square','Square','▣']]},
+ {key:'scarf',label:'Neckwear',type:'options',cols:2,items:[['none','None','×'],['scarf','Scarf','≈']]},
+ {key:'scarfColor',label:'Neckwear color',type:'colors',palette:'clothing'}
+ ]
+};
+const PRESETS=[
+ {name:'Trailblazer',code:'01',values:{body:'standard',skin:'#E5B18F',hairStyle:'swept',hairColor:'#523A43',top:'jacket',topColor:'#5279BF',bottom:'pants',bottomColor:'#39465D',hat:'cap',hatColor:'#E86F73',bag:'satchel',bagColor:'#B48A65',scarf:'none',shoes:'sneakers',shoeColor:'#F7EBC9'}},
+ {name:'Researcher',code:'02',values:{body:'slim',skin:'#F7DAB5',hairStyle:'bob',hairColor:'#79533F',top:'uniform',topColor:'#F3EBD8',bottom:'pants',bottomColor:'#39465D',hat:'none',bag:'satchel',bagColor:'#B79D8A',glasses:'round',shoes:'flats',shoeColor:'#39465D',scarf:'scarf',scarfColor:'#65B69C'}},
+ {name:'City Scout',code:'03',values:{body:'standard',skin:'#C98965',hairStyle:'spiky',hairColor:'#2A2A37',top:'hoodie',topColor:'#8B77C7',bottom:'shorts',bottomColor:'#2A2B39',hat:'beanie',hatColor:'#39465D',bag:'backpack',bagColor:'#F2A85E',glasses:'none',shoes:'boots',shoeColor:'#F3EBD8',scarf:'none'}},
+ {name:'Wildflower',code:'04',values:{body:'slim',skin:'#A76B4D',hairStyle:'ponytail',hairColor:'#E6D1A8',top:'dress',topColor:'#65B69C',bottom:'skirt',bottomColor:'#65B69C',hat:'bandana',hatColor:'#F4D07F',bag:'none',glasses:'none',shoes:'flats',shoeColor:'#AF6D57',scarf:'scarf',scarfColor:'#F4BE64'}}
+];
+const DIRECTIONS=['front','left','right','back'];
+const colorField = new Set(['skin','eyeColor','hairColor','topColor','bottomColor','shoeColor','hatColor','bagColor','scarfColor']);
+const allowedOptions={};
+for(const groups of Object.values(LABELS)) for(const g of groups) if(g.type==='options') allowedOptions[g.key]=new Set(g.items.map(v=>v[0]));
+allowedOptions.style=new Set(['gen4','gen5']);allowedOptions.direction=new Set(DIRECTIONS);
+let state={...BASE};
+try {const persisted=JSON.parse(localStorage.getItem('trainer-lab-build')||'null');if(persisted)state={...state,...cleanBuild(persisted)};} catch{}
+let activeTab='appearance', activePreset=-1, frame=0, customLayers=[], toastTimeout;
+const $=id=>document.getElementById(id);
+const ctx=$('preview').getContext('2d');
+ctx.imageSmoothingEnabled=false;
+
+function cleanBuild(input){
+ const result={};
+ if(!input || typeof input!=='object')return result;
+ for(const [key,value] of Object.entries(input)){
+  if(colorField.has(key)&&typeof value==='string'&&/^#[0-9a-fA-F]{6}$/.test(value))result[key]=value.toUpperCase();
+  else if(allowedOptions[key]?.has(value))result[key]=value;
+  else if(key==='zoom'&&Number.isFinite(value))result.zoom=Math.max(5,Math.min(10,Math.round(value)));
+  else if(key==='animate'&&typeof value==='boolean')result.animate=value;
+ }
+ return result;
+}
+function persist(){try{localStorage.setItem('trainer-lab-build',JSON.stringify(state));}catch{}}
+function toast(message){const node=$('toast');node.textContent=message;node.classList.add('show');clearTimeout(toastTimeout);toastTimeout=setTimeout(()=>node.classList.remove('show'),3000);}
+function randomOne(values){return values[Math.floor(Math.random()*values.length)];}
+function randomize(){
+ for(const group of Object.values(LABELS))for(const g of group){
+  if(g.key==='background')continue;
+  state[g.key]=g.type==='colors'?randomOne(COLORS[g.palette]):randomOne(g.items)[0];
+ }
+ activePreset=-1;refresh();toast('A fresh trainer has arrived!');
+}
+function setField(key,value){state[key]=value;activePreset=-1;refresh();}
+function switchTab(tab){activeTab=tab;document.querySelectorAll('.category-tab').forEach(b=>{const active=b.dataset.tab===tab;b.classList.toggle('active',active);b.setAttribute('aria-selected',String(active));});renderControls();}
+function renderControls(){
+ const content=$('control-content');content.replaceChildren();
+ for(const group of LABELS[activeTab]){
+  const box=document.createElement('section');box.className='group';
+  const heading=document.createElement('div');heading.className='group-heading';const title=document.createElement('span');title.textContent=group.label;heading.append(title);
+  if(group.type==='colors'){const small=document.createElement('small');small.textContent='SELECT A SHADE';heading.append(small);}
+  box.append(heading);
+  if(group.type==='options'){
+   const grid=document.createElement('div');grid.className='option-grid'+(group.cols===3?' three':'');
+   for(const [value,label,symbol] of group.items){
+    const b=document.createElement('button');b.type='button';b.className='option'+(state[group.key]===value?' selected':'');b.setAttribute('aria-pressed',String(state[group.key]===value));
+    const s=document.createElement('span');s.className='option-icon';s.textContent=symbol;b.append(s,document.createTextNode(' '+label));
+    b.addEventListener('click',()=>setField(group.key,value));grid.append(b);
+   }box.append(grid);
+  }else{
+   const pal=document.createElement('div');pal.className='palette';
+   for(const color of COLORS[group.palette]){
+    const b=document.createElement('button');b.type='button';b.className='swatch'+(state[group.key].toUpperCase()===color.toUpperCase()?' selected':'');b.style.backgroundColor=color;b.title=color;b.setAttribute('aria-label',group.label+' '+color);b.setAttribute('aria-pressed',String(state[group.key].toUpperCase()===color.toUpperCase()));
+    b.addEventListener('click',()=>setField(group.key,color));pal.append(b);
+   }box.append(pal);
+  }
+  content.append(box);
+ }
+}
+function rgb(hex){return [parseInt(hex.slice(1,3),16),parseInt(hex.slice(3,5),16),parseInt(hex.slice(5,7),16)];}
+function mix(color,withColor,amount){const a=rgb(color),b=rgb(withColor);return '#'+a.map((v,i)=>Math.round(v+(b[i]-v)*amount).toString(16).padStart(2,'0')).join('');}
+const dark=c=>mix(c,'#172033',.35);const light=c=>mix(c,'#FFFFFF',.29);
+function px(g,x,y,w,h,c){if(w>0&&h>0){g.fillStyle=c;g.fillRect(Math.round(x),Math.round(y),Math.round(w),Math.round(h));}}
+function box(g,x,y,w,h,c,border='#2A3343'){px(g,x,y,w,h,border);px(g,x+1,y+1,w-2,h-2,c);}
+function spots(g,coords,color){for(const [x,y,w=1,h=1] of coords)px(g,x,y,w,h,color);}
+function drawSprite(g,v,direction='front',f=0,layers=[],sheetCol=f){
+ g.clearRect(0,0,32,48);g.imageSmoothingEnabled=false;g.save();
+ let side=direction==='right'||direction==='left'; const back=direction==='back';
+ if(direction==='left'){g.translate(32,0);g.scale(-1,1);}
+ const yo=v.style==='gen4'?1:0, stride=f===1?2:f===3?-2:0, bounce=(f===1||f===3)?-1:0;
+ g.translate(0,yo+bounce);
+ const outline=v.style==='gen4'?'#333447':'#253344', skin=v.skin,shade=dark(skin),highlight=light(skin),hair=v.hairColor,hairDark=dark(hair),hairLight=light(hair);
+ const torsoX=v.body==='sturdy'?8:v.body==='slim'?11:10;
+ const torsoW=v.body==='sturdy'?16:v.body==='slim'?10:12;
+ const hipX=v.body==='sturdy'?10:11;
+ const hipW=v.body==='sturdy'?12:10;
+ const torso=v.topColor,torsoShade=dark(torso),torsoLight=light(torso),bottom=v.bottomColor,shoe=v.shoeColor;
+ // Long hair / ponytail and backpacks sit behind the character.
+ if(v.hairStyle==='long'||v.hairStyle==='bob'){
+  box(g,side?12:9,15,side?12:14,v.hairStyle==='long'?25:16,hairDark,outline);
+  px(g,side?15:10,23,side?8:11,v.hairStyle==='long'?14:7,hair);
+ }
+ if(v.hairStyle==='ponytail'){
+  box(g,side?10:21,16,side?8:5,18,hairDark,outline);px(g,side?11:22,19,side?5:3,13,hair);
+  if(!side&&back){box(g,15,21,6,18,hair,outline);px(g,17,24,2,10,hairLight);}
+ }
+ if(v.bag==='backpack'){
+  box(g,side?8:7,27,side?11:18,14, v.bagColor,outline);
+  px(g,side?10:9,28,side?7:14,3,light(v.bagColor));px(g,side?11:11,37,side?5:10,2,dark(v.bagColor));
+ }
+ if(v.bag==='satchel' && side){box(g,7,31,7,10,v.bagColor,outline);px(g,9,34,3,2,light(v.bagColor));}
+ // Legs: stride swaps which foot extends forward.
+ const leftStep=stride, rightStep=-stride;
+ if(v.bottom==='skirt'||v.top==='dress'){
+  box(g,hipX-2,33,hipW+4,9,bottom,outline);px(g,hipX-1,35,hipW+2,3,light(bottom));
+  for(let i=0;i<3;i++) px(g,hipX+i*4,40,2,1,dark(bottom));
+  box(g,12+leftStep,40,4,4,skin,outline);box(g,18+rightStep,40,4,4,skin,outline);
+ }else{
+  box(g,11+leftStep,35,5,8,bottom,outline);box(g,17+rightStep,35,5,8,bottom,outline);
+  px(g,12+leftStep,36,2,5,light(bottom));px(g,18+rightStep,36,2,5,light(bottom));
+  if(v.bottom==='shorts'){
+   px(g,12+leftStep,39,3,3,skin);px(g,18+rightStep,39,3,3,skin);
+  }
+ }
+ const shoeH=v.shoes==='boots'?5:v.shoes==='flats'?3:4;
+ box(g,10+leftStep,42,7,shoeH,shoe,outline);box(g,17+rightStep,42,7,shoeH,shoe,outline);
+ if(v.shoes==='sneakers'){px(g,11+leftStep,44,5,1,light(shoe));px(g,18+rightStep,44,5,1,light(shoe));}
+ if(v.shoes==='boots'){px(g,12+leftStep,43,4,2,dark(shoe));px(g,19+rightStep,43,4,2,dark(shoe));}
+ // Neck, ears, and head.
+ box(g,14,22,5,6,shade,outline);px(g,15,23,3,4,skin);
+ if(side){box(g,11,10,13,15,skin,outline);box(g,21,17,4,5,skin,outline);px(g,22,18,2,2,highlight);px(g,11,18,2,4,shade);}else{
+  box(g,9,10,14,14,skin,outline);px(g,10,12,2,9,shade);px(g,19,12,2,7,highlight);
+  box(g,7,16,3,5,skin,outline);box(g,22,16,3,5,skin,outline);
+ }
+ // Arms, slightly moving opposite legs.
+ const armShift=Math.sign(stride);
+ if(side){box(g,torsoX+1-armShift,26,5,11,torso,outline);box(g,torsoX+1-armShift,35,5,4,skin,outline);}
+ else{
+  box(g,torsoX-4-armShift,26,5,11,torso,outline);box(g,torsoX+torsoW-1+armShift,26,5,11,torso,outline);
+  px(g,torsoX-3-armShift,28,2,5,torsoLight);px(g,torsoX+torsoW+1+armShift,28,1,5,torsoShade);
+  box(g,torsoX-4-armShift,35,5,4,skin,outline);box(g,torsoX+torsoW-1+armShift,35,5,4,skin,outline);
+ }
+ // Tunic and collar.
+ box(g,torsoX,25,torsoW,13,torso,outline);
+ px(g,torsoX+1,26,2,10,torsoLight);px(g,torsoX+torsoW-3,26,2,10,torsoShade);
+ px(g,torsoX+3,25,Math.max(3,torsoW-6),2,outline);px(g,torsoX+4,26,Math.max(1,torsoW-8),2,skin);
+ if(v.top==='jacket'){
+  px(g,16,28,1,9,outline);px(g,14,28,2,8,torsoShade);px(g,17,28,2,8,torsoShade);
+  px(g,13,29,2,3,torsoLight);px(g,19,29,2,3,torsoLight);px(g,16,32,1,1,'#F1E6C5');
+ }else if(v.top==='hoodie'){
+  px(g,torsoX+2,28,torsoW-4,1,torsoShade);px(g,15,28,1,5,'#F5E0BF');px(g,18,28,1,5,'#F5E0BF');
+  box(g,13,32,7,4,torsoShade,outline);
+ }else if(v.top==='vest'){
+  px(g,15,28,2,8,torsoShade);px(g,12,29,2,3,light(torso));px(g,19,29,2,3,light(torso));
+  px(g,13,34,3,1,outline);px(g,18,34,3,1,outline);
+ }else if(v.top==='uniform'){
+  px(g,13,27,2,3,'#F3F0DE');px(g,18,27,2,3,'#F3F0DE');px(g,16,29,1,7,torsoShade);
+  px(g,16,31,1,1,'#E7D19A');px(g,16,34,1,1,'#E7D19A');
+ }else if(v.top==='dress'){
+  px(g,torsoX,34,torsoW,4,torsoLight);px(g,15,27,3,3,light(torso));
+ }else if(v.top==='tee'){
+  px(g,torsoX+2,34,torsoW-4,1,torsoShade);
+ }
+ // Bag straps across the front.
+ if(v.bag==='backpack'&&!back){
+  if(side){px(g,torsoX+2,27,2,9,dark(v.bagColor));}
+  else{px(g,torsoX+2,27,2,10,dark(v.bagColor));px(g,torsoX+torsoW-4,27,2,10,dark(v.bagColor));}
+ }
+ if(v.bag==='satchel'){
+  if(!back&&!side){for(let i=0;i<11;i++)px(g,torsoX+2+i,25+i,2,2,dark(v.bagColor));box(g,torsoX+torsoW-4,34,8,8,v.bagColor,outline);px(g,torsoX+torsoW-2,36,4,2,light(v.bagColor));}
+  else if(back){box(g,torsoX+torsoW-4,31,8,10,v.bagColor,outline);px(g,torsoX+torsoW-2,33,4,2,light(v.bagColor));}
+ }
+ // Face before bangs.
+ if(!back){
+  if(side){px(g,21,17,2,3,v.eyeColor);px(g,22,18,1,1,'#E8EDF4');px(g,23,21,2,1,shade);}
+  else{
+   spots(g,[[12,17,2,3],[19,17,2,3]],v.eyeColor);
+   px(g,12,17,1,1,'#E9EEF7');px(g,19,17,1,1,'#E9EEF7');
+   px(g,16,20,1,1,shade);px(g,15,22,3,1,dark(skin));
+   if(v.style==='gen5'){px(g,11,21,2,1,mix(skin,'#D26D72',.33));px(g,20,21,2,1,mix(skin,'#D26D72',.33));}
+  }
+ }
+ // Hair base and hairstyle; back is more covered.
+ const hb=back?9:8;
+ if(v.hairStyle==='short'){
+  box(g,side?10:9,8,side?14:14,7,hair,outline);px(g,side?10:9,13,side?5:4,6,hairDark);px(g,13,9,6,2,hairLight);
+ }else if(v.hairStyle==='swept'){
+  box(g,side?10:8,8,side?14:16,8,hair,outline);px(g,side?10:9,13,side?5:10,3,hairDark);
+  px(g,9,16,9,2,hair);px(g,10,18,4,2,hair);px(g,19,13,4,6,hairDark);
+  px(g,12,9,8,2,hairLight);
+ }else if(v.hairStyle==='spiky'){
+  box(g,9,10,15,6,hair,outline);
+  spots(g,[[10,5,4,8],[16,4,4,9],[21,7,4,8],[7,9,3,5]],hairDark);
+  spots(g,[[11,5,2,6],[17,5,2,6],[22,8,1,5]],hair);
+  px(g,12,11,7,2,hairLight);
+ }else if(v.hairStyle==='mohawk'){
+  box(g,12,6,9,10,hair,outline);px(g,14,3,4,9,hair);px(g,15,1,2,7,hairLight);
+  px(g,9,11,4,4,hairDark);px(g,20,11,4,4,hairDark);
+ }else if(v.hairStyle==='bob'){
+  box(g,8,9,16,9,hair,outline);px(g,8,14,4,12,hair);px(g,21,14,4,12,hairDark);
+  px(g,10,10,10,2,hairLight);px(g,10,16,9,2,hair);
+ }else if(v.hairStyle==='long'){
+  box(g,8,9,16,7,hair,outline);box(g,8,14,4,17,hair,outline);box(g,21,14,4,17,hairDark,outline);
+  px(g,10,11,12,2,hairLight);px(g,10,15,9,2,hair);
+ }else if(v.hairStyle==='ponytail'){
+  box(g,9,9,15,8,hair,outline);px(g,10,12,12,3,hair);px(g,13,10,8,2,hairLight);
+  if(!side&&!back){px(g,9,15,4,4,hairDark);px(g,21,14,3,5,hairDark);}
+ }else if(v.hairStyle==='curly'){
+  box(g,8,9,17,8,hairDark,outline);spots(g,[[8,8,5,5],[13,7,5,4],[19,8,5,5],[8,13,5,7],[21,13,4,7]],hair);
+  spots(g,[[10,9,3,2],[16,9,3,2],[21,10,2,2]],hairLight);
+ }
+ if(back){px(g,12,17,9,7,hair);px(g,14,21,6,2,hairDark);}
+ // Headwear sits on top of the hair.
+ if(v.hat==='cap'){
+  box(g,8,6,17,7,v.hatColor,outline);px(g,10,7,12,3,light(v.hatColor));
+  box(g,side?18:7,11,side?9:18,3,dark(v.hatColor),outline);
+ }else if(v.hat==='beanie'){
+  box(g,8,5,17,9,v.hatColor,outline);px(g,10,7,12,2,light(v.hatColor));px(g,9,12,15,2,dark(v.hatColor));
+ }else if(v.hat==='bandana'){
+  box(g,8,10,17,4,v.hatColor,outline);px(g,10,11,11,1,light(v.hatColor));if(side)px(g,9,13,3,8,dark(v.hatColor));
+ }
+ if(v.glasses!=='none'&&!back){
+  if(side){box(g,20,16,4,5,'#B9D9DB',outline);px(g,21,17,2,2,'#BDD8E288');}
+  else{const w=v.glasses==='round'?5:6;box(g,10,16,w,5,'#C4E3E5',outline);box(g,18,16,w,5,'#C4E3E5',outline);px(g,15,17,3,1,outline);px(g,11,17,2,2,'#80B1C7');px(g,19,17,2,2,'#80B1C7');}
+ }
+ if(v.scarf==='scarf'){
+  box(g,12,24,10,4,v.scarfColor,outline);px(g,14,25,6,1,light(v.scarfColor));
+  box(g,side?11:20,27,4,9,v.scarfColor,outline);px(g,side?12:21,30,2,4,dark(v.scarfColor));
+ }
+ g.restore();
+ // External asset selected from the local Sprite Vault.
+ if(appliedPackSprite){
+  if(appliedPackSprite.mode==='replace')g.clearRect(0,0,32,48);
+  paintPackFrame(g,appliedPackSprite.asset,direction,sheetCol,appliedPackSprite.layout,appliedPackSprite.offset);
+ }
+ for(const layer of layers){
+  if(!layer.enabled)continue;
+  const image=layer.image;
+  if(image.naturalWidth===32&&image.naturalHeight===48)g.drawImage(image,0,0);
+  else if(image.naturalWidth===128&&image.naturalHeight===192){
+   const row={front:0,left:1,right:2,back:3}[direction];
+   g.drawImage(image,32*sheetCol,48*row,32,48,0,0,32,48);
+  }
+ }
+}
+function renderPreview(){
+ drawSprite(ctx,state,state.direction,frame,customLayers,frame);
+ const z=state.zoom;$('preview').style.width=(32*z)+'px';$('preview').style.height=(48*z)+'px';
+ $('zoom').value=z;$('zoom-label').textContent=z+'×';
+ $('preview-stage').className='preview-stage bg-'+state.background;
+ $('style-caption').textContent=state.style==='gen4'?'GEN IV / PIXEL STYLE':'GEN V / PIXEL STYLE';
+ document.querySelectorAll('[data-dir]').forEach(b=>{b.classList.toggle('selected',b.dataset.dir===state.direction);b.setAttribute('aria-pressed',String(b.dataset.dir===state.direction));});
+ document.querySelectorAll('[data-style]').forEach(b=>{b.classList.toggle('selected',b.dataset.style===state.style);b.setAttribute('aria-pressed',String(b.dataset.style===state.style));});
+ $('animation-toggle').classList.toggle('active',state.animate);
+ $('animation-label').textContent=state.animate?'Pause animation':'Play animation';
+ $('animation-glyph').textContent=state.animate?'Ⅱ':'▶';
+}
+function renderPresets(){const grid=$('preset-grid');grid.replaceChildren();PRESETS.forEach((p,index)=>{
+ const b=document.createElement('button');b.className='preset'+(activePreset===index?' selected':'');
+ const mini=document.createElement('canvas');mini.width=32;mini.height=48;drawSprite(mini.getContext('2d'),{...BASE,...p.values},'front',0);
+ const name=document.createElement('span');name.textContent=p.name;const code=document.createElement('span');code.className='preset-num';code.textContent='LOOK '+p.code;b.append(mini,name,code);
+ b.addEventListener('click',()=>{state={...state,...p.values};activePreset=index;refresh();toast(p.name+' outfit loaded');});grid.append(b);
+ });}
+function refresh(){renderControls();renderPreview();renderPresets();persist();}
+function renderLayers(){const list=$('layers-list');list.replaceChildren();
+ if(!customLayers.length){const node=document.createElement('div');node.className='empty-layers';node.textContent='No custom layers added yet';list.append(node);return;}
+ for(const layer of customLayers){const row=document.createElement('div');row.className='layer-row';const label=document.createElement('label');const input=document.createElement('input');input.type='checkbox';input.checked=layer.enabled;input.addEventListener('change',()=>{layer.enabled=input.checked;renderPreview();});const title=document.createElement('span');title.className='layer-name';title.textContent=layer.name;title.title=layer.name;label.append(input,title);const rm=document.createElement('button');rm.textContent='×';rm.title='Remove '+layer.name;rm.addEventListener('click',()=>{customLayers=customLayers.filter(v=>v!==layer);renderLayers();renderPreview();});row.append(label,rm);list.append(row);}
+}
+function makeSheet(){const c=document.createElement('canvas');c.width=128;c.height=192;const g=c.getContext('2d');g.imageSmoothingEnabled=false;DIRECTIONS.forEach((d,row)=>{for(let col=0;col<4;col++){g.save();g.translate(col*32,row*48);drawSprite(g,state,d,col,customLayers,col);g.restore();}});return c;}
+// drawSprite clears a 32x48 rect within the translated cell. Export is true resolution, with alpha.
+function downloadCanvas(c,name){c.toBlob(blob=>{if(!blob){toast('PNG export unavailable in this browser');return;}const url=URL.createObjectURL(blob);const anchor=document.createElement('a');anchor.href=url;anchor.download=name;document.body.append(anchor);anchor.click();anchor.remove();setTimeout(()=>URL.revokeObjectURL(url),2500);toast(name+' downloaded');},'image/png');}
+function exportSheet(){downloadCanvas(makeSheet(),'trainer-lab-spritesheet-4x4.png');}
+function exportPose(){const c=document.createElement('canvas');c.width=32;c.height=48;drawSprite(c.getContext('2d'),state,state.direction,frame,customLayers,frame);downloadCanvas(c,'trainer-lab-'+state.direction+'.png');}
+function downloadJSON(){const blob=new Blob([JSON.stringify({app:'trainer-lab',version:1,character:state},null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='trainer-lab-character.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),2500);toast('Character build saved as JSON');}
+async function loadJSON(file){try{const doc=JSON.parse(await file.text());const input=doc?.character||doc;const obj=cleanBuild(input);if(!Object.keys(obj).length)throw Error('No compatible character settings');state={...BASE,...obj};activePreset=-1;frame=0;refresh();toast('Character build loaded');}catch(error){toast('Could not read character: '+error.message);}}
+async function importLayers(files){let accepted=0,rejected=0;
+ for(const file of files){if(file.type!=='image/png'&&!file.name.toLowerCase().endsWith('.png')){rejected++;continue;}
+  if(file.size>5*1024*1024){rejected++;continue;}
+  try{const img=await createImageBitmap(file);if(!((img.width===32&&img.height===48)||(img.width===128&&img.height===192))){img.close();rejected++;continue;}
+   // HTMLImageElement is used to keep drawImage/browser compatibility.
+   const url=URL.createObjectURL(file);const element=new Image();await new Promise((resolve,reject)=>{element.onload=resolve;element.onerror=reject;element.src=url;});URL.revokeObjectURL(url);img.close();customLayers.push({name:file.name,image:element,enabled:true});accepted++;
+  }catch{rejected++;}
+ }
+ renderLayers();renderPreview();toast(accepted+' PNG layer(s) added'+(rejected?' • '+rejected+' skipped (size/format)':''));}
+
+// Local pack asset library. Archive bytes never leave this browser tab.
+const packAssets=[];
+let chosenPackAsset=null,appliedPackSprite=null,displayedPackCount=120,packBusy=false;
+const MAX_ZIP=90*1024*1024,MAX_ENTRY=12*1024*1024,MAX_TOTAL=180*1024*1024,MAX_ASSETS=5000;
+function packMessage(message,warning=false){const el=$('pack-status');el.textContent=message;el.classList.toggle('warning',warning);}
+function classifyPackPath(path){
+ const p=path.toLowerCase().replace(/[_.-]/g,' ');
+ if(/hair|bangs|fringe|ponytail|hairstyle|wig/.test(p))return 'hair';
+ if(/shirt|top|pants|skirt|dress|hoodie|jacket|uniform|clothes|shorts|shoe|coat/.test(p))return 'clothes';
+ if(/hat|bag|glasses|scarf|accessor|cap|backpack|bandana/.test(p))return 'accessories';
+ if(/skin|base|body|template/.test(p))return 'base';
+ if(/battle|front sprite|back sprite|trainer sprite|battler|portrait/.test(p))return 'battle';
+ if(/overworld|ow |walk|run|bike|sprite/.test(p))return 'overworld';
+ return 'other';
+}
+function readableBytes(n){return n<1048576?Math.round(n/1024)+' KB':(n/1048576).toFixed(1)+' MB';}
+function getPackGrid(asset,layout='auto'){
+ const w=asset.image.width||asset.image.naturalWidth,h=asset.image.height||asset.image.naturalHeight;
+ if(layout!=='auto'){let [col,row]=layout.split('x').map(Number);return {cols:col,rows:row,cellWidth:w/col,cellHeight:h/row};}
+ if(w%4===0&&h%4===0&&w/4>=12&&w/4<=128&&h/4>=12&&h/4<=128)return {cols:4,rows:4,cellWidth:w/4,cellHeight:h/4};
+ if(w%3===0&&h%4===0&&w/3>=12&&w/3<=128&&h/4>=12&&h/4<=128)return {cols:3,rows:4,cellWidth:w/3,cellHeight:h/4};
+ if(w%5===0&&h<=250&&w/5>=12&&w/5<=200)return {cols:5,rows:1,cellWidth:w/5,cellHeight:h};
+ return {cols:1,rows:1,cellWidth:w,cellHeight:h};
+}
+function paintPackFrame(g,asset,direction,frame,layout='auto',offset=0){
+ if(!asset || !asset.image)return;
+ const gr=getPackGrid(asset,layout);let col=0,row=0;
+ if(gr.cols>1)col=(frame+(Number(offset)||0))%gr.cols;
+ if(gr.rows>1){row=({front:0,left:1,right:2,back:3}[direction]||0)%gr.rows;}
+ const sx=col*gr.cellWidth,sy=row*gr.cellHeight;
+ // Pixel-accurate nearest-neighbor art, preserving aspect ratio; bottom-align to feet.
+ const scale=Math.min(32/gr.cellWidth,48/gr.cellHeight);
+ const dw=gr.cellWidth*scale,dh=gr.cellHeight*scale;
+ const dx=(32-dw)/2,dy=48-dh;
+ g.save();g.imageSmoothingEnabled=false;
+ g.drawImage(asset.image,sx,sy,gr.cellWidth,gr.cellHeight,dx,dy,dw,dh);
+ g.restore();
+}
+async function readZipPngs(file){
+ if(file.size>MAX_ZIP)throw Error('ZIP exceeds 90 MB limit');
+ const data=await file.arrayBuffer(),dv=new DataView(data),bytes=new Uint8Array(data),decoder=new TextDecoder();
+ let eocd=-1;
+ for(let i=data.byteLength-22;i>=Math.max(0,data.byteLength-65557);i--){if(dv.getUint32(i,true)===0x06054b50){eocd=i;break;}}
+ if(eocd<0)throw Error('ZIP central directory not found');
+ const count=dv.getUint16(eocd+10,true),directoryOffset=dv.getUint32(eocd+16,true);
+ if(count>MAX_ASSETS||directoryOffset>=data.byteLength)throw Error('ZIP is too large or malformed');
+ let at=directoryOffset,total=0;const out=[];
+ for(let i=0;i<count;i++){
+  if(at+46>data.byteLength||dv.getUint32(at,true)!==0x02014b50)throw Error('Invalid ZIP central directory');
+  const flags=dv.getUint16(at+8,true),method=dv.getUint16(at+10,true),compressed=dv.getUint32(at+20,true),uncompressed=dv.getUint32(at+24,true);
+  const nameLen=dv.getUint16(at+28,true),extraLen=dv.getUint16(at+30,true),commentLen=dv.getUint16(at+32,true),localOffset=dv.getUint32(at+42,true);
+  if(at+46+nameLen+extraLen+commentLen>data.byteLength)throw Error('Invalid ZIP filename');
+  const name=decoder.decode(bytes.subarray(at+46,at+46+nameLen));
+  at+=46+nameLen+extraLen+commentLen;
+  if(!/\.png$/i.test(name)||name.includes('..')||name.startsWith('/')||name.startsWith('\\')||!uncompressed)continue;
+  if(flags&1)continue; // encrypted archives not supported
+  if(method!==0&&method!==8)continue;
+  if(uncompressed>MAX_ENTRY)continue;
+  total+=uncompressed;if(total>MAX_TOTAL)throw Error('ZIP exceeds 180 MB of uncompressed PNGs');
+  if(localOffset+30>data.byteLength||dv.getUint32(localOffset,true)!==0x04034b50)continue;
+  const n=dv.getUint16(localOffset+26,true),e=dv.getUint16(localOffset+28,true),start=localOffset+30+n+e;
+  if(start+compressed>data.byteLength)continue;
+  let raw;
+  if(method===0)raw=bytes.slice(start,start+compressed);
+  else{
+   if(typeof DecompressionStream==='undefined')throw Error('Your browser cannot decompress ZIPs. Extract the ZIP and import its folder.');
+   const stream=new Blob([bytes.slice(start,start+compressed)]).stream().pipeThrough(new DecompressionStream('deflate-raw'));
+   raw=new Uint8Array(await new Response(stream).arrayBuffer());
+  }
+  if(raw.length!==uncompressed||raw.length>MAX_ENTRY)continue;
+  if(raw[0]===137&&raw[1]===80&&raw[2]===78&&raw[3]===71){out.push({name,blob:new Blob([raw],{type:'image/png'})});}
+ }
+ return out;
+}
+async function addPackImage(name,blob,source){
+ if(packAssets.length>=MAX_ASSETS)return false;
+ if(blob.size>MAX_ENTRY||blob.size<20)return false;
+ let image;
+ try{image=await createImageBitmap(blob);}catch{return false;}
+ if(image.width>8192||image.height>8192||image.width<8||image.height<8){image.close();return false;}
+ packAssets.push({id:packAssets.length+1,name:name.split('/').pop(),path:name,source,category:classifyPackPath(name),image});
+ return true;
+}
+async function loadPackFiles(files,folder=false){
+ if(packBusy)return;packBusy=true;let accepted=0,skipped=0,failures=[];
+ try{
+  for(const file of files){
+   if(packAssets.length>=MAX_ASSETS)break;
+   const source=folder?(file.webkitRelativePath||file.name).split('/')[0]:file.name.replace(/\.zip$/i,'');
+   try{
+    if(!folder&&file.name.toLowerCase().endsWith('.zip')){
+     packMessage('Reading '+file.name+'…');
+     const contents=await readZipPngs(file);
+     for(const item of contents){if(await addPackImage(item.name,item.blob,source))accepted++;else skipped++;}
+    }else if(file.name.toLowerCase().endsWith('.png')){
+     if(await addPackImage(file.webkitRelativePath||file.name,file,source))accepted++;else skipped++;
+    }else skipped++;
+   }catch(error){failures.push(file.name+': '+error.message);}
+  }
+ }finally{packBusy=false;}
+ packMessage('Imported '+accepted+' PNG sprite(s)'+(skipped?' • '+skipped+' skipped':'')+(failures.length?' • '+failures.join(' | ').slice(0,230):''),Boolean(failures.length));
+ displayedPackCount=120;renderPackGallery();renderPreview();
+}
+function filteredPackAssets(){
+ const q=$('pack-search').value.toLowerCase().trim(),source=$('pack-source').value,type=$('pack-type').value;
+ return packAssets.filter(a=>(source==='all'||a.source===source)&&(type==='all'||a.category===type)&&(!q||(a.path+' '+a.source).toLowerCase().includes(q)));
+}
+function showPackThumb(canvas,asset,layout='auto'){
+ const g=canvas.getContext('2d');g.imageSmoothingEnabled=false;g.clearRect(0,0,32,48);paintPackFrame(g,asset,'front',0,layout,0);
+}
+function renderPackGallery(){
+ const selectedSource=$('pack-source').value,sourceSel=$('pack-source');
+ sourceSel.replaceChildren();let opt=document.createElement('option');opt.value='all';opt.textContent='All packs';sourceSel.append(opt);
+ for(const source of [...new Set(packAssets.map(a=>a.source))].sort()){
+  opt=document.createElement('option');opt.value=source;opt.textContent=source.slice(0,50);sourceSel.append(opt);
+ }
+ sourceSel.value=[...sourceSel.options].some(o=>o.value===selectedSource)?selectedSource:'all';
+ const found=filteredPackAssets(),list=$('pack-gallery');list.replaceChildren();
+ $('pack-count').textContent=found.length+' of '+packAssets.length+' sprites';
+ if(!found.length){const p=document.createElement('p');p.className='pack-empty';p.textContent=packAssets.length?'No sprites match your filters.':'Imported PNGs will show up here. The bundled starter art remains usable without any packs.';list.append(p);}
+ for(const a of found.slice(0,displayedPackCount)){
+  const b=document.createElement('button');b.type='button';b.className='pack-asset'+(a===chosenPackAsset?' selected':'');b.title=a.path;
+  const thumb=document.createElement('span');thumb.className='pack-thumb';const c=document.createElement('canvas');c.width=32;c.height=48;showPackThumb(c,a);thumb.append(c);
+  const name=document.createElement('span');name.className='pack-asset-name';name.textContent=a.name;
+  const meta=document.createElement('span');meta.className='pack-asset-meta';meta.textContent=a.category+' · '+a.source;
+  b.append(thumb,name,meta);b.addEventListener('click',()=>choosePackSprite(a));list.append(b);
+ }
+ $('pack-show-more').hidden=found.length<=displayedPackCount;
+}
+function choosePackSprite(asset){
+ chosenPackAsset=asset;
+ $('pack-detail').hidden=false;
+ $('pack-selected-name').textContent=asset.path;
+ $('pack-selected-meta').textContent=asset.source+' · '+asset.category+' · '+asset.image.width+'×'+asset.image.height+' px';
+ const gr=getPackGrid(asset);
+ $('pack-layout').value='auto';$('pack-frame-offset').value='0';
+ $('pack-apply').value=(asset.category==='hair'||asset.category==='clothes'||asset.category==='accessories'||asset.category==='base')?'overlay':'replace';
+ showPackThumb($('pack-selected-canvas'),asset);
+ $('pack-selected-meta').textContent+=' · detected '+gr.cols+'×'+gr.rows+' layout';
+ renderPackGallery();
+}
+function applyPackSprite(){
+ if(!chosenPackAsset){packMessage('Select a sprite from the gallery first.',true);return;}
+ appliedPackSprite={asset:chosenPackAsset,mode:$('pack-apply').value,layout:$('pack-layout').value,offset:Math.max(0,parseInt($('pack-frame-offset').value)||0)};
+ renderPreview();toast('Applied '+chosenPackAsset.name+' to trainer preview');
+}
+function clearPackAssets(){
+ for(const a of packAssets)a.image.close();
+ packAssets.length=0;chosenPackAsset=null;appliedPackSprite=null;
+ $('pack-detail').hidden=true;packMessage('Sprite Vault cleared. Import ZIPs or extracted PNG folders to use them again.');renderPackGallery();renderPreview();
+}
+function bindPackVault(){
+ $('import-pack-zip').addEventListener('change',async e=>{await loadPackFiles([...e.target.files],false);e.target.value='';});
+ $('import-pack-folder').addEventListener('change',async e=>{await loadPackFiles([...e.target.files],true);e.target.value='';});
+ $('pack-search').addEventListener('input',()=>{displayedPackCount=120;renderPackGallery();});
+ $('pack-source').addEventListener('change',()=>{displayedPackCount=120;renderPackGallery();});
+ $('pack-type').addEventListener('change',()=>{displayedPackCount=120;renderPackGallery();});
+ $('pack-show-more').addEventListener('click',()=>{displayedPackCount+=120;renderPackGallery();});
+ $('pack-layout').addEventListener('change',()=>{if(chosenPackAsset)showPackThumb($('pack-selected-canvas'),chosenPackAsset,$('pack-layout').value);});
+ $('pack-apply-selected').addEventListener('click',applyPackSprite);
+ $('pack-remove-selected').addEventListener('click',()=>{appliedPackSprite=null;renderPreview();toast('Original builder art restored');});
+ $('clear-pack-library').addEventListener('click',clearPackAssets);
+}
+function bind(){
+ document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.tab)));
+ document.querySelectorAll('[data-style]').forEach(b=>b.addEventListener('click',()=>setField('style',b.dataset.style)));
+ document.querySelectorAll('[data-dir]').forEach(b=>b.addEventListener('click',()=>{state.direction=b.dataset.dir;frame=0;renderPreview();persist();}));
+ $('zoom').addEventListener('input',e=>{state.zoom=+e.target.value;renderPreview();persist();});
+ $('animation-toggle').addEventListener('click',()=>{state.animate=!state.animate;frame=0;renderPreview();persist();});
+ $('reset-character').addEventListener('click',()=>{state={...BASE};activePreset=-1;frame=0;refresh();toast('Back to the original starter character');});
+ $('randomize-header').addEventListener('click',randomize);
+ $('export-header').addEventListener('click',exportSheet);$('export-sheet').addEventListener('click',exportSheet);$('export-single').addEventListener('click',exportPose);
+ $('save-json').addEventListener('click',downloadJSON);$('load-json-button').addEventListener('click',()=>$('load-json').click());
+ $('load-json').addEventListener('change',async e=>{if(e.target.files[0])await loadJSON(e.target.files[0]);e.target.value='';});
+ $('import-png').addEventListener('change',async e=>{await importLayers([...e.target.files]);e.target.value='';});
+ document.addEventListener('keydown',e=>{if(e.target.matches('input,textarea,button')||e.altKey||e.ctrlKey||e.metaKey)return;const dirs={ArrowDown:'front',ArrowLeft:'left',ArrowRight:'right',ArrowUp:'back'};if(dirs[e.key]){e.preventDefault();state.direction=dirs[e.key];renderPreview();}else if(e.key.toLowerCase()==='r'){randomize();}});
+ setInterval(()=>{if(!state.animate||document.hidden)return;frame=(frame+1)%4;renderPreview();},240);
+}
+bind();bindPackVault();refresh();renderLayers();renderPackGallery();
+})();
+
+</script>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brandmark" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+        <div><div class="brandname">TRAINER<span>LAB</span><span class="brand-spark">✳</span></div><div class="brand-sub">PIXEL CHARACTER STUDIO</div></div>
+      </div>
+      <div class="header-center"><span class="status-dot"></span> CREATE MODE <span class="header-sep">/</span> GEN IV–V INSPIRED</div>
+      <div class="header-actions">
+        <button id="randomize-header" class="button button-ghost"><span class="button-symbol">✦</span> Randomize</button>
+        <button id="save-json" class="button button-ghost"><span class="button-symbol">↧</span> Save Build</button>
+        <button id="export-header" class="button button-primary"><span class="button-symbol">↗</span> Export Sprites</button>
+      </div>
+    </header>
+
+    <main class="workspace">
+      <aside class="controls panel" aria-label="Character controls">
+        <div class="panel-intro"><div class="overline">01 / THE WORKSHOP</div><h2>Make it <em>yours.</em></h2><p>Every great adventure starts with a character.</p></div>
+        <div id="category-tabs" class="category-tabs" role="tablist" aria-label="Customizer categories">
+          <button class="category-tab active" data-tab="appearance" role="tab" aria-selected="true"><span>◎</span> Appearance</button>
+          <button class="category-tab" data-tab="hair" role="tab" aria-selected="false"><span>✳</span> Hair & face</button>
+          <button class="category-tab" data-tab="clothes" role="tab" aria-selected="false"><span>▧</span> Clothing</button>
+          <button class="category-tab" data-tab="accessories" role="tab" aria-selected="false"><span>◇</span> Accessories</button>
+        </div>
+        <div class="controls-scroll"><div id="control-content" class="control-content"></div></div>
+        <div class="controls-footer"><button id="reset-character" class="button button-soft">↺ &nbsp; Reset character</button><span>Changes saved in browser</span></div>
+      </aside>
+
+      <section class="preview-area" aria-label="Character preview">
+        <div class="preview-top"><div><div class="overline">02 / YOUR CREATION</div><h1>The adventure <em>is you.</em></h1><p>Mix a look. Make it yours. Take it into your world.</p></div><div class="style-switch" role="group" aria-label="Sprite style"><button data-style="gen4" class="style-button">GEN IV</button><button data-style="gen5" class="style-button selected">GEN V</button></div></div>
+        <div class="preview-stage bg-meadow" id="preview-stage">
+          <div class="stage-grid" aria-hidden="true"></div>
+          <div class="stage-topline"><span><span class="live-dot"></span> LIVE PREVIEW</span><span>32 × 48 PX</span></div>
+          <div class="scene-decoration deco-left" aria-hidden="true">✦</div><div class="scene-decoration deco-right" aria-hidden="true">✧</div>
+          <div class="scene-shadow"></div><canvas id="preview" width="32" height="48" role="img" aria-label="Your pixel-art trainer character"></canvas>
+          <div class="stage-bottomline"><span id="style-caption">GEN V / PIXEL STYLE</span><span>100% ORIGINAL STARTER ART</span></div>
+        </div>
+        <div class="view-toolbar"><div class="view-set"><span class="toolbar-label">VIEW</span><button data-dir="front" class="direction selected" title="Front">↓</button><button data-dir="left" class="direction" title="Left">←</button><button data-dir="back" class="direction" title="Back">↑</button><button data-dir="right" class="direction" title="Right">→</button></div><div class="view-right"><button id="animation-toggle" class="view-option active"><span id="animation-glyph">Ⅱ</span> <span id="animation-label">Pause animation</span></button><label class="zoom-label" for="zoom">ZOOM</label><input id="zoom" type="range" min="5" max="10" step="1" value="8"><span id="zoom-label">8×</span></div></div>
+        <div class="preview-footer"><span class="footer-square"></span> MADE WITH PIXELS & POSSIBILITIES <span class="preview-footer-end">NO ACCOUNT • NO UPLOADS • JUST CREATE</span></div>
+      </section>
+
+      <aside class="inspector panel" aria-label="Presets and export">
+        <div class="inspector-head"><div class="overline">03 / FINISHING TOUCHES</div><h2>Quick start<span class="asterisk">✳</span></h2><p>Try a look, then remix everything.</p></div>
+        <div id="preset-grid" class="preset-grid"></div>
+        <div class="panel-divider"></div>
+        <div class="tool-heading"><div><div class="overline">YOUR TOOLKIT</div><h3>Sprite controls</h3></div></div>
+        <div class="detail-grid"><div class="detail-card"><strong>32×48</strong><span>FRAME SIZE</span></div><div class="detail-card"><strong>4 × 4</strong><span>SPRITE GRID</span></div></div>
+        <div class="export-buttons"><button id="export-sheet" class="button button-primary button-wide">↗ &nbsp; Download sprite sheet <span>PNG</span></button><button id="export-single" class="button button-outline button-wide">↓ &nbsp; Download current pose <span>PNG</span></button></div>
+        <div class="panel-divider"></div>
+        <div class="tool-heading"><div><div class="overline">EXTRA LAYERS</div><h3>Bring your own pixels</h3></div></div>
+        <p class="helper">Add transparent 32×48 PNG layers, or 128×192 sheets with 4 directions × 4 frames. Files stay on your device. Import full asset packs in the Sprite Vault below.</p>
+        <label class="upload-button" for="import-png"><span class="upload-plus">+</span><span><strong>Import PNG layers</strong><small>Overlay outfits, hair, and more</small></span></label>
+        <input type="file" id="import-png" accept="image/png" multiple hidden>
+        <div id="layers-list" class="layers-list" aria-live="polite"><div class="empty-layers">No custom layers added yet</div></div>
+        <div class="panel-divider"></div>
+        <button id="load-json-button" class="button button-soft button-wide">↑ &nbsp; Load saved character JSON</button>
+        <input id="load-json" type="file" accept=".json,application/json" hidden>
+      </aside>
+    </main>
+    <section class="pack-library panel" aria-label="Imported sprite pack library">
+      <div class="pack-library-head">
+        <div><div class="overline">04 / THE SPRITE VAULT</div><h2>Import your sprite packs<span class="asterisk">✳</span></h2><p>Browse local ZIP archives or extracted PNG folders. Choose a full sprite or a transparent layer to apply to your trainer.</p></div>
+        <div class="pack-actions">
+          <label class="button button-primary" for="import-pack-zip">↧ Import ZIP pack</label>
+          <label class="button button-outline" for="import-pack-folder">▣ Import extracted folder</label>
+          <button class="button button-ghost" id="clear-pack-library" type="button">Clear imports</button>
+          <input id="import-pack-zip" type="file" accept=".zip,application/zip,application/x-zip-compressed" multiple hidden>
+          <input id="import-pack-folder" type="file" webkitdirectory directory multiple hidden>
+        </div>
+      </div>
+      <div class="source-strip">
+        <span>Get the originals from their creators:</span>
+        <a target="_blank" rel="noopener noreferrer" href="https://eeveeexpo.com/resources/317/">Poltergeist Gen IV ↗</a>
+        <a target="_blank" rel="noopener noreferrer" href="https://eeveeexpo.com/resources/609/">Ultimate Gen IV ↗</a>
+        <a target="_blank" rel="noopener noreferrer" href="https://eeveeexpo.com/resources/619/">Ultimate Gen V ↗</a>
+      </div>
+      <div id="pack-status" role="status" aria-live="polite" class="pack-status">No pack imported. Download a ZIP, or extract a RAR/7z to a folder, then import above.</div>
+      <div class="pack-filter-bar">
+        <label class="pack-field">Search <input type="search" id="pack-search" placeholder="Name, outfit, hair, overworld…"></label>
+        <label class="pack-field">Pack <select id="pack-source"><option value="all">All packs</option></select></label>
+        <label class="pack-field">Type <select id="pack-type"><option value="all">All sprites</option><option value="hair">Hair</option><option value="clothes">Clothes</option><option value="accessories">Accessories</option><option value="base">Body/base</option><option value="overworld">Overworlds</option><option value="battle">Battle portraits</option><option value="other">Other</option></select></label>
+        <span id="pack-count" class="pack-count">0 sprites</span>
+      </div>
+      <div id="pack-gallery" class="pack-gallery"><p class="pack-empty">Imported PNGs will show up here. The bundled starter art remains usable without any packs.</p></div>
+      <div class="pack-footer"><button class="button button-soft" id="pack-show-more" hidden type="button">Show more sprites</button><span>Pack files stay in this browser tab only. Nothing uploads to a server or GitHub.</span></div>
+      <div id="pack-detail" class="pack-detail" hidden>
+        <div class="pack-selected-preview"><canvas id="pack-selected-canvas" width="32" height="48"></canvas></div>
+        <div class="pack-selected-info">
+          <strong id="pack-selected-name"></strong>
+          <span id="pack-selected-meta"></span>
+          <div class="pack-detail-fields">
+            <label>Apply as <select id="pack-apply"><option value="replace">Full sprite (replaces starter)</option><option value="overlay">Transparent layer (on top)</option></select></label>
+            <label>Frame layout <select id="pack-layout"><option value="auto">Auto detect</option><option value="4x4">4 columns × 4 rows</option><option value="3x4">3 columns × 4 rows</option><option value="5x1">5 columns × 1 row</option><option value="1x1">Single image</option></select></label>
+            <label>Frame offset <input id="pack-frame-offset" type="number" value="0" min="0" max="999" step="1"></label>
+          </div>
+          <div class="pack-selected-actions"><button id="pack-apply-selected" class="button button-primary" type="button">Apply sprite to trainer</button><button id="pack-remove-selected" class="button button-outline" type="button">Remove applied sprite</button></div>
+        </div>
+      </div>
+    </section>
+    <footer class="main-footer"><span>TRAINER LAB <b>✳</b> CHARACTER CREATOR</span><span>Starter art is original • External sprite packs remain local</span><span>v2.0</span></footer>
+  </div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
