@@ -139,11 +139,12 @@
         <a target="_blank" rel="noopener noreferrer" href="https://eeveeexpo.com/resources/609/">Ultimate Gen IV ↗</a>
         <a target="_blank" rel="noopener noreferrer" href="https://eeveeexpo.com/resources/619/">Ultimate Gen V ↗</a>
       </div>
-      <div id="pack-status" role="status" aria-live="polite" class="pack-status">Checking for bundled artist-permitted character parts…</div><div id="pack-applied-stack" class="pack-status" style="margin-top:9px" aria-live="polite">0 sprite layers applied. Select a base first, then clothes, hair and accessories.</div>
+      <div id="pack-status" role="status" aria-live="polite" class="pack-status">Checking for bundled artist-permitted character parts…</div><div class="pack-status" style="margin-top:9px;border-color:#5f5b8b">For correctly aligned results, keep all selected layers in the <strong>same pose family and body type</strong> (e.g. Walking + Walking). Base → top → bottom → hair → hat.</div><div id="pack-applied-stack" class="pack-status" style="margin-top:9px" aria-live="polite">0 sprite layers applied. Select a base first, then clothes, hair and accessories.</div>
       <div class="pack-filter-bar">
         <label class="pack-field">Search <input type="search" id="pack-search" placeholder="Name, outfit, hair, overworld…"></label>
         <label class="pack-field">Pack <select id="pack-source"><option value="all">All packs</option></select></label>
-        <label class="pack-field">Type <select id="pack-type"><option value="all">All sprites</option><option value="hair">Hair</option><option value="clothes">Clothes</option><option value="accessories">Accessories</option><option value="base">Body/base</option><option value="overworld">Overworlds</option><option value="battle">Battle portraits</option><option value="other">Other</option></select></label>
+        <label class="pack-field">Pose <select id="pack-pose"><option value="all">All poses</option><option value="overworld walk">Walking</option><option value="overworld run">Running</option><option value="overworld bike">Cycling</option><option value="trainer front male">Trainer front (male)</option><option value="trainer front female">Trainer front (female)</option><option value="trainer back male">Trainer back (male)</option><option value="trainer back female">Trainer back (female)</option></select></label>
+        <label class="pack-field">Part <select id="pack-type"><option value="all">All parts</option><option value="base">Body / skin base</option><option value="hair">Hairstyles</option><option value="tops">Tops</option><option value="bottoms">Bottoms</option><option value="outfits">Back sprite outfits</option><option value="hats">Hats / accessories</option><option value="bags">Bags</option><option value="shoes">Shoes</option><option value="overworld">Overworld / full sprite</option><option value="other">Other</option></select></label>
         <span id="pack-count" class="pack-count">0 sprites</span>
       </div>
       <div id="pack-gallery" class="pack-gallery"><p class="pack-empty">Imported or built-in sprite artwork will appear here. The original starter character is available above.</p></div>
@@ -489,13 +490,35 @@ let chosenPackAsset=null,appliedPackSprites=[],displayedPackCount=120,packBusy=f
 const MAX_ZIP=90*1024*1024,MAX_ENTRY=12*1024*1024,MAX_TOTAL=180*1024*1024,MAX_ASSETS=5000;
 function packMessage(message,warning=false){const el=$('pack-status');el.textContent=message;el.classList.toggle('warning',warning);}
 function classifyPackPath(path){
+ // The source pack is organized: pokemon png / [pose] / [component] / item.png.
+ const parts=path.toLowerCase().replace(/\\/g,'/').split('/');
+ if(parts.length>=4 && parts[0].includes('pokemon png')){
+  const section=parts[2];
+  if(/bases?/.test(section))return 'base';
+  if(section==='hair')return 'hair';
+  if(section==='tops')return 'tops';
+  if(section==='bottoms')return 'bottoms';
+  if(/hat/.test(section))return 'hats';
+  if(section==='carrying stuff')return 'bags';
+  if(section==='clothing')return 'outfits';
+ }
  const p=path.toLowerCase().replace(/[_.-]/g,' ');
  if(/hair|bangs|fringe|ponytail|hairstyle|wig/.test(p))return 'hair';
- if(/shirt|top|pants|skirt|dress|hoodie|jacket|uniform|clothes|shorts|shoe|coat/.test(p))return 'clothes';
- if(/hat|bag|glasses|scarf|accessor|cap|backpack|bandana/.test(p))return 'accessories';
- if(/skin|base|body|template/.test(p))return 'base';
- if(/battle|front sprite|back sprite|trainer sprite|battler|portrait/.test(p))return 'battle';
+ if(/base|skin|body|template/.test(p))return 'base';
+ if(/shirt|top|hoodie|jacket|coat/.test(p))return 'tops';
+ if(/pants|skirt|shorts|bottom|dress/.test(p))return 'bottoms';
+ if(/shoes|boots|sneaker/.test(p))return 'shoes';
+ if(/bag|backpack|satchel|carry/.test(p))return 'bags';
+ if(/hat|glasses|scarf|accessor|cap|bandana/.test(p))return 'hats';
+ if(/battle|front sprite|back sprite|trainer sprite|battler|portrait/.test(p))return 'outfits';
  if(/overworld|ow |walk|run|bike|sprite/.test(p))return 'overworld';
+ return 'other';
+}
+function assetPose(asset){
+ const p=(asset.path||'').toLowerCase();
+ for(const label of ['overworld walk','overworld run','overworld bike','trainer front male','trainer front female','trainer back male','trainer back female']){
+  if(p.includes('/'+label+'/'))return label;
+ }
  return 'other';
 }
 function readableBytes(n){return n<1048576?Math.round(n/1024)+' KB':(n/1048576).toFixed(1)+' MB';}
@@ -587,8 +610,8 @@ async function loadPackFiles(files,folder=false){
  displayedPackCount=120;renderPackGallery();renderPreview();
 }
 function filteredPackAssets(){
- const q=$('pack-search').value.toLowerCase().trim(),source=$('pack-source').value,type=$('pack-type').value;
- return packAssets.filter(a=>(source==='all'||a.source===source)&&(type==='all'||a.category===type)&&(!q||(a.path+' '+a.source).toLowerCase().includes(q)));
+ const q=$('pack-search').value.toLowerCase().trim(),source=$('pack-source').value,type=$('pack-type').value,pose=$('pack-pose').value;
+ return packAssets.filter(a=>(source==='all'||a.source===source)&&(type==='all'||a.category===type)&&(pose==='all'||assetPose(a)===pose)&&(!q||(a.path+' '+a.source).toLowerCase().includes(q)));
 }
 function showPackThumb(canvas,asset,layout='auto'){
  const g=canvas.getContext('2d');g.imageSmoothingEnabled=false;g.clearRect(0,0,32,48);paintPackFrame(g,asset,'front',0,layout,0);
@@ -627,7 +650,7 @@ async function choosePackSprite(asset){
  $('pack-selected-meta').textContent=asset.source+' · '+asset.category+' · '+asset.image.width+'×'+asset.image.height+' px';
  const gr=getPackGrid(asset);
  $('pack-layout').value='auto';$('pack-frame-offset').value='0';
- $('pack-apply').value=(asset.category==='hair'||asset.category==='clothes'||asset.category==='accessories'||asset.category==='base')?'overlay':'replace';
+ $('pack-apply').value=(asset.category==='base'||asset.category==='overworld')?'replace':'overlay';
  showPackThumb($('pack-selected-canvas'),asset);
  $('pack-selected-meta').textContent+=' · detected '+gr.cols+'×'+gr.rows+' layout';
  renderPackGallery();
@@ -638,7 +661,7 @@ function applyPackSprite(){
  const selected={asset:chosenPackAsset,mode,layout:$('pack-layout').value,offset:Math.max(0,parseInt($('pack-frame-offset').value)||0)};
  if(mode==='replace')appliedPackSprites=[selected];
  else {
-  if(!['accessories','other'].includes(chosenPackAsset.category))appliedPackSprites=appliedPackSprites.filter(s=>s.asset.category!==chosenPackAsset.category);
+  if(!['other','overworld'].includes(chosenPackAsset.category))appliedPackSprites=appliedPackSprites.filter(s=>s.asset.category!==chosenPackAsset.category);
   appliedPackSprites.push(selected);
  }
  renderPreview();renderAppliedPackStack();toast('Applied '+chosenPackAsset.name+' to trainer preview');
@@ -669,7 +692,7 @@ async function loadBuiltInAssets(){
       source:'Poltergeist Gen IV (built in)',category,image:null,url:item.path,
       width:item.width,height:item.height});n++;
   }
-  packMessage('Loaded '+n+' ready-to-use Gen IV sprite parts by Coffee Cup / Poltergeist. Select any sprite below to start customizing.');
+  packMessage('Loaded '+n+' ready-to-use Gen IV sprite parts by Coffee Cup / Poltergeist. Choose the same pose family for each piece, then select a base below to start customizing.');
   renderPackGallery();
  }catch(e){packMessage('Bundled sprites could not be loaded: '+e.message,true);}
 }
@@ -679,6 +702,7 @@ function bindPackVault(){
  $('pack-search').addEventListener('input',()=>{displayedPackCount=120;renderPackGallery();});
  $('pack-source').addEventListener('change',()=>{displayedPackCount=120;renderPackGallery();});
  $('pack-type').addEventListener('change',()=>{displayedPackCount=120;renderPackGallery();});
+ $('pack-pose').addEventListener('change',()=>{displayedPackCount=120;renderPackGallery();});
  $('pack-show-more').addEventListener('click',()=>{displayedPackCount+=120;renderPackGallery();});
  $('pack-layout').addEventListener('change',()=>{if(chosenPackAsset)showPackThumb($('pack-selected-canvas'),chosenPackAsset,$('pack-layout').value);});
  $('pack-apply-selected').addEventListener('click',applyPackSprite);
